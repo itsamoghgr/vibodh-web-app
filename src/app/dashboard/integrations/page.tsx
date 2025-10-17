@@ -4,12 +4,13 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardActions,
   Button,
   Chip,
+  Paper,
+  Stack,
 } from '@mui/material'
 import {
   Chat as SlackIcon,
@@ -23,6 +24,7 @@ import {
 } from '@mui/icons-material'
 import ConnectButton from './ConnectButton'
 import Link from 'next/link'
+import DashboardLayout from '@/components/DashboardLayout'
 
 interface Integration {
   id: string
@@ -128,126 +130,165 @@ export default async function IntegrationsPage() {
   const connectedSources = new Set(connections?.map((c) => c.source_type) || [])
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Button
-              component={Link}
-              href="/dashboard"
-              startIcon={<ArrowBack />}
-            >
-              Back to Dashboard
-            </Button>
-            <Button
-              component={Link}
-              href="/dashboard/sync-status"
-              variant="outlined"
-              startIcon={<History />}
-            >
-              View Sync Status
-            </Button>
-          </Box>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Integrations
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Connect your tools to enable AI-powered insights across your company's knowledge base
-          </Typography>
-        </Box>
-
-        {/* Integration Cards */}
-        <Grid container spacing={3}>
-          {integrations.map((integration) => {
-            const Icon = integration.icon
-            const isConnected = connectedSources.has(integration.id)
-            const connection = connections?.find((c) => c.source_type === integration.id)
-
-            return (
-              <Grid item xs={12} md={6} key={integration.id}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    opacity: integration.available ? 1 : 0.6,
-                  }}
+    <DashboardLayout>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+            {/* Header */}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Button
+                  component={Link}
+                  href="/dashboard"
+                  startIcon={<ArrowBack />}
+                  variant="outlined"
+                  size="small"
                 >
-                  {isConnected && (
-                    <Chip
-                      icon={<CheckCircle />}
-                      label="Connected"
-                      color="success"
-                      size="small"
+                  Back to Dashboard
+                </Button>
+                <Button
+                  component={Link}
+                  href="/dashboard/sync-status"
+                  variant="outlined"
+                  startIcon={<History />}
+                  size="small"
+                >
+                  View Sync Status
+                </Button>
+              </Box>
+              <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+                Integrations
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600 }}>
+                Connect your tools to enable AI-powered insights across your company's knowledge base
+              </Typography>
+            </Box>
+
+            {/* Integration Cards */}
+            <Box 
+              sx={{ 
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                gap: 3,
+              }}
+            >
+              {integrations.map((integration) => {
+                const Icon = integration.icon
+                const isConnected = connectedSources.has(integration.id)
+                const connection = connections?.find((c) => c.source_type === integration.id)
+
+                return (
+                  <Box key={integration.id}>
+                    <Card
                       sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'relative',
+                        opacity: integration.available ? 1 : 0.6,
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)',
+                        },
                       }}
-                    />
-                  )}
+                    >
+                      {isConnected && (
+                        <Chip
+                          icon={<CheckCircle />}
+                          label="Connected"
+                          color="success"
+                          size="small"
+                          sx={{
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            zIndex: 1,
+                          }}
+                        />
+                      )}
 
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Icon
-                        sx={{
-                          fontSize: 48,
-                          color: integration.color,
-                          mr: 2,
-                        }}
-                      />
-                      <Typography variant="h5" component="h2">
-                        {integration.name}
-                      </Typography>
-                    </Box>
-
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      {integration.description}
-                    </Typography>
-
-                    {isConnected && connection && (
-                      <Box sx={{ mt: 2, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Workspace: <strong>{connection.workspace_name}</strong>
-                        </Typography>
-                        <br />
-                        <Typography variant="caption" color="text.secondary">
-                          Connected: {new Date(connection.connected_at).toLocaleDateString()}
-                        </Typography>
-                        {connection.last_sync_at && (
-                          <>
-                            <br />
-                            <Typography variant="caption" color="text.secondary">
-                              Last sync: {new Date(connection.last_sync_at).toLocaleString()}
+                      <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                          <Box
+                            sx={{
+                              width: 56,
+                              height: 56,
+                              borderRadius: 2,
+                              backgroundColor: `${integration.color}15`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              mr: 2,
+                            }}
+                          >
+                            <Icon
+                              sx={{
+                                fontSize: 32,
+                                color: integration.color,
+                              }}
+                            />
+                          </Box>
+                          <Box>
+                            <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
+                              {integration.name}
                             </Typography>
-                          </>
-                        )}
-                      </Box>
-                    )}
-                  </CardContent>
+                            <Typography variant="body2" color="text.secondary">
+                              {integration.available ? 'Available' : 'Coming Soon'}
+                            </Typography>
+                          </Box>
+                        </Box>
 
-                  <CardActions sx={{ p: 2, pt: 0 }}>
-                    {integration.available ? (
-                      <ConnectButton
-                        integration={integration}
-                        isConnected={isConnected}
-                        connectionId={connection?.id}
-                        orgId={profile.org_id}
-                      />
-                    ) : (
-                      <Button variant="outlined" disabled fullWidth>
-                        Coming Soon
-                      </Button>
-                    )}
-                  </CardActions>
-                </Card>
-              </Grid>
-            )
-          })}
-        </Grid>
-      </Box>
-    </Container>
+                        <Typography variant="body2" color="text.secondary" paragraph sx={{ mb: 3 }}>
+                          {integration.description}
+                        </Typography>
+
+                        {isConnected && connection && (
+                          <Paper 
+                            elevation={0}
+                            sx={{ 
+                              mt: 2, 
+                              p: 2, 
+                              bgcolor: 'grey.50', 
+                              borderRadius: 2,
+                              border: '1px solid rgba(0, 0, 0, 0.06)',
+                            }}
+                          >
+                            <Stack spacing={1}>
+                              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                Workspace: <strong>{connection.workspace_name}</strong>
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                Connected: {new Date(connection.connected_at).toLocaleDateString()}
+                              </Typography>
+                              {connection.last_sync_at && (
+                                <Typography variant="caption" color="text.secondary">
+                                  Last sync: {new Date(connection.last_sync_at).toLocaleString()}
+                                </Typography>
+                              )}
+                            </Stack>
+                          </Paper>
+                        )}
+                      </CardContent>
+
+                      <CardActions sx={{ p: 3, pt: 0 }}>
+                        {integration.available ? (
+                          <ConnectButton
+                            integration={integration}
+                            isConnected={isConnected}
+                            connectionId={connection?.id}
+                            orgId={profile.org_id}
+                          />
+                        ) : (
+                          <Button variant="outlined" disabled fullWidth sx={{ py: 1.5 }}>
+                            Coming Soon
+                          </Button>
+                        )}
+                      </CardActions>
+                    </Card>
+                  </Box>
+                )
+              })}
+            </Box>
+      </Container>
+    </DashboardLayout>
   )
 }

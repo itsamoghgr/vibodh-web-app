@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import { ArrowBack, Chat } from '@mui/icons-material'
 import Link from 'next/link'
+import DashboardLayout from '@/components/DashboardLayout'
 
 interface ChatSession {
   id: string
@@ -78,11 +79,17 @@ export default async function ChatHistoryPage() {
   }
 
   return (
-    <Container maxWidth="md">
-      <Box sx={{ py: 4 }}>
+    <DashboardLayout>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Button component={Link} href="/dashboard/chat" startIcon={<ArrowBack />}>
+          <Button
+            component={Link}
+            href="/dashboard/chat"
+            startIcon={<ArrowBack />}
+            variant="outlined"
+            size="small"
+          >
             Back to Chat
           </Button>
           <div>
@@ -134,7 +141,7 @@ export default async function ChatHistoryPage() {
             ))}
           </Stack>
         )}
-      </Box>
-    </Container>
+      </Container>
+    </DashboardLayout>
   )
 }

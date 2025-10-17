@@ -5,10 +5,8 @@ import {
   Container,
   Typography,
   Paper,
-  Grid,
-  Card,
-  CardContent,
-  Button,
+  Chip,
+  Stack,
 } from '@mui/material'
 import {
   Business as BusinessIcon,
@@ -16,9 +14,12 @@ import {
   Extension as IntegrationIcon,
   Description as DocumentIcon,
   Chat as ChatIcon,
+  TrendingUp as AnalyticsIcon,
+  CheckCircle as CheckIcon,
 } from '@mui/icons-material'
 import Link from 'next/link'
-import LogoutButton from './LogoutButton'
+import DashboardLayout from '@/components/DashboardLayout'
+import DashboardCard from '@/components/DashboardCard'
 
 interface Profile {
   id: string
@@ -67,143 +68,123 @@ export default async function DashboardPage() {
     .eq('org_id', profile?.org_id)
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        {/* Header */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mb: 4,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Dashboard
-          </Typography>
-          <LogoutButton />
-        </Box>
+    <DashboardLayout>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+            {/* Welcome Section */}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+                Welcome back, {profile?.full_name || user.email}! 👋
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600 }}>
+                Your organization is ready to start ingesting data and gaining AI-powered insights.
+              </Typography>
+            </Box>
 
-        {/* Welcome Message */}
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            Welcome back, {profile?.full_name || user.email}! 👋
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            You're all set up with Vibodh. Your organization is ready to start ingesting data and
-            gaining AI-powered insights.
-          </Typography>
-        </Paper>
+            {/* Stats Overview */}
+            <Box 
+              sx={{ 
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+                gap: 3,
+                mb: 4,
+              }}
+            >
+              <DashboardCard
+                title="Organization"
+                subtitle={organization?.name}
+                value={teamCount || 1}
+                icon={<BusinessIcon />}
+                color="primary"
+                variant="stat"
+                chip={{
+                  label: 'Active',
+                  color: 'success',
+                }}
+              />
+              <DashboardCard
+                title="Your Role"
+                subtitle={profile?.email}
+                value={profile?.role}
+                icon={<PersonIcon />}
+                color="secondary"
+                variant="stat"
+              />
+              <DashboardCard
+                title="Created"
+                subtitle="Organization setup"
+                value={new Date(organization?.created_at || '').toLocaleDateString()}
+                icon={<CheckIcon />}
+                color="success"
+                variant="stat"
+              />
+            </Box>
 
-        {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <BusinessIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-                  <Typography variant="h6">Organization</Typography>
-                </Box>
-                <Typography variant="h4" gutterBottom>
-                  {organization?.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Created {new Date(organization?.created_at || '').toLocaleDateString()}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+            {/* Quick Actions */}
+            <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+              Quick Actions
+            </Typography>
+            
+            <Box 
+              sx={{ 
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+                gap: 3,
+              }}
+            >
+              <DashboardCard
+                title="Chat with AI"
+                subtitle="Ask questions about your company's knowledge base"
+                icon={<ChatIcon />}
+                color="primary"
+                variant="action"
+                href="/dashboard/chat"
+              />
+              
+              <DashboardCard
+                title="Integrations"
+                subtitle="Connect your tools (Slack, Notion, Drive) to enable AI-powered insights"
+                icon={<IntegrationIcon />}
+                color="secondary"
+                variant="action"
+                href="/dashboard/integrations"
+              />
+              
+              <DashboardCard
+                title="Documents"
+                subtitle="View and manage ingested data from your connected integrations"
+                icon={<DocumentIcon />}
+                color="success"
+                variant="action"
+                href="/dashboard/documents"
+              />
+            </Box>
 
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <PersonIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-                  <Typography variant="h6">Your Profile</Typography>
-                </Box>
-                <Typography variant="body1" gutterBottom>
-                  <strong>Email:</strong> {profile?.email}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                  <strong>Role:</strong> {profile?.role}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Team members: {teamCount || 1}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {/* Quick Actions */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <ChatIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-                  <Typography variant="h6">Chat with AI</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  Ask questions about your company's knowledge base
-                </Typography>
-                <Button
-                  component={Link}
-                  href="/dashboard/chat"
-                  variant="contained"
-                  fullWidth
-                >
-                  Start Chatting
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <IntegrationIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-                  <Typography variant="h6">Integrations</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  Connect your tools (Slack, Notion, Drive) to enable AI-powered insights
-                </Typography>
-                <Button
-                  component={Link}
-                  href="/dashboard/integrations"
-                  variant="outlined"
-                  fullWidth
-                >
-                  Manage Integrations
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <DocumentIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-                  <Typography variant="h6">Documents</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  View and manage ingested data from your connected integrations
-                </Typography>
-                <Button
-                  component={Link}
-                  href="/dashboard/documents"
-                  variant="outlined"
-                  fullWidth
-                >
-                  View Documents
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
+            {/* Recent Activity */}
+            <Box sx={{ mt: 6 }}>
+              <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+                Recent Activity
+              </Typography>
+              
+              <Paper sx={{ p: 3 }}>
+                <Stack spacing={2}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <CheckIcon color="success" />
+                    <Typography variant="body2" color="text.secondary">
+                      Organization created successfully
+                    </Typography>
+                    <Chip label="Today" size="small" color="primary" />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <IntegrationIcon color="primary" />
+                    <Typography variant="body2" color="text.secondary">
+                      Ready to connect your first integration
+                    </Typography>
+                    <Chip label="Next step" size="small" color="secondary" />
+                  </Box>
+                </Stack>
+              </Paper>
+            </Box>
+      </Container>
+    </DashboardLayout>
   )
 }

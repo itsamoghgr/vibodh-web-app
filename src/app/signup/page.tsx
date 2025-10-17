@@ -105,23 +105,58 @@ export default function SignupPage() {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Create Your Account
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-            Join Vibodh and unlock AI-powered insights for your company
-          </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'background.default',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={2}
+          sx={{
+            p: { xs: 4, sm: 6 },
+            width: '100%',
+          }}
+        >
+          {/* Logo */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: 2,
+                bgcolor: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mx: 'auto',
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '1.75rem',
+                  lineHeight: 1,
+                }}
+              >
+                V
+              </Typography>
+            </Box>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, mb: 1 }}>
+              Create Account
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Get started with Vibodh
+            </Typography>
+          </Box>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -189,22 +224,33 @@ export default function SignupPage() {
               variant="contained"
               size="large"
               disabled={loading || !!success}
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 3 }}
             >
               {loading ? 'Creating Account...' : 'Sign Up'}
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2">
+              <Typography variant="body2" color="text.secondary">
                 Already have an account?{' '}
-                <MuiLink component={Link} href="/login" underline="hover">
+                <MuiLink
+                  component={Link}
+                  href="/login"
+                  sx={{
+                    color: 'primary.main',
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
                   Sign In
                 </MuiLink>
               </Typography>
             </Box>
           </form>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }

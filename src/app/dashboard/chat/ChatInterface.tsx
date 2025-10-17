@@ -193,28 +193,74 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 0 }}>
       {/* Messages Area */}
       <Paper
+        elevation={0}
         sx={{
           flex: 1,
           overflow: 'auto',
-          p: 3,
-          bgcolor: 'grey.50',
+          p: 0,
+          bgcolor: 'transparent',
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
+          borderRadius: 3,
+          position: 'relative',
         }}
       >
         {messages.length === 0 && (
-          <Box sx={{ textAlign: 'center', py: 8 }}>
-            <SmartToy sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              Start a conversation
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            py: 8,
+            px: 4,
+          }}>
+            <Box
+              sx={{
+                width: 72,
+                height: 72,
+                borderRadius: 3,
+                bgcolor: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 3,
+              }}
+            >
+              <SmartToy sx={{ fontSize: 36, color: 'white' }} />
+            </Box>
+            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+              Welcome to Vibodh AI
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Ask me anything about your company's knowledge base
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500, textAlign: 'center' }}>
+              I'm your AI assistant. Ask me anything about your company's knowledge base, documents, or team insights.
             </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center', maxWidth: 700 }}>
+              {[
+                "What's in our latest project updates?",
+                "Summarize our team meetings",
+                "Find information about our products",
+                "What are our company policies?"
+              ].map((suggestion, index) => (
+                <Chip
+                  key={index}
+                  label={suggestion}
+                  onClick={() => setInput(suggestion)}
+                  variant="outlined"
+                  sx={{
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                      borderColor: 'primary.main',
+                    },
+                  }}
+                />
+              ))}
+            </Box>
           </Box>
         )}
 
@@ -226,27 +272,39 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
               gap: 2,
               alignItems: 'flex-start',
               flexDirection: message.role === 'user' ? 'row-reverse' : 'row',
+              mb: 3,
+              px: 2,
             }}
           >
-            <Avatar sx={{ bgcolor: message.role === 'user' ? 'primary.main' : 'secondary.main' }}>
-              {message.role === 'user' ? <Person /> : <SmartToy />}
+            <Avatar
+              sx={{
+                bgcolor: message.role === 'user' ? 'primary.main' : 'grey.200',
+                width: 36,
+                height: 36,
+                fontSize: '1rem',
+              }}
+            >
+              {message.role === 'user' ? <Person sx={{ fontSize: 20 }} /> : <SmartToy sx={{ fontSize: 20, color: 'text.primary' }} />}
             </Avatar>
 
             <Box sx={{ flex: 1, maxWidth: '80%' }}>
-              <Paper
+              <Box
                 sx={{
-                  p: 2,
-                  bgcolor: message.role === 'user' ? 'primary.main' : 'white',
-                  color: message.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                  p: 2.5,
+                  bgcolor: message.role === 'user' ? 'primary.main' : 'background.paper',
+                  color: message.role === 'user' ? 'white' : 'text.primary',
+                  borderRadius: 2,
+                  border: message.role === 'user' ? 'none' : '1px solid',
+                  borderColor: 'divider',
+                  position: 'relative',
                 }}
               >
-                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
                   {message.content}
                 </Typography>
-              </Paper>
 
-              {/* Context & Feedback for Assistant Messages */}
-              {message.role === 'assistant' && (
+                {/* Context & Feedback for Assistant Messages */}
+                {message.role === 'assistant' && (
                 <Box sx={{ mt: 1 }}>
                   {/* Context Toggle */}
                   {message.context && message.context.length > 0 && (
@@ -260,16 +318,14 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
                       />
 
                       <Collapse in={expandedContext[message.id]}>
-                        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                           {message.context.map((ctx: any, idx: number) => (
-                            <Card key={idx} variant="outlined" sx={{ bgcolor: 'grey.50' }}>
-                              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                                <Typography variant="caption" color="text.secondary" gutterBottom>
-                                  Source {idx + 1} • Similarity: {(ctx.similarity * 100).toFixed(0)}%
-                                </Typography>
-                                <Typography variant="body2">{ctx.content}</Typography>
-                              </CardContent>
-                            </Card>
+                            <Paper key={idx} variant="outlined" sx={{ p: 2, bgcolor: 'background.default' }}>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                                Source {idx + 1} • {(ctx.similarity * 100).toFixed(0)}% match
+                              </Typography>
+                              <Typography variant="body2" color="text.primary">{ctx.content}</Typography>
+                            </Paper>
                           ))}
                         </Box>
                       </Collapse>
@@ -294,21 +350,55 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
                     </IconButton>
                   </Box>
                 </Box>
-              )}
+                )}
+              </Box>
             </Box>
           </Box>
         ))}
 
         {isLoading && (
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <Avatar sx={{ bgcolor: 'secondary.main' }}>
-              <SmartToy />
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 3, px: 2 }}>
+            <Avatar sx={{ bgcolor: 'grey.200', width: 36, height: 36 }}>
+              <SmartToy sx={{ fontSize: 20, color: 'text.primary' }} />
             </Avatar>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CircularProgress size={20} />
-              <Typography variant="body2" color="text.secondary">
-                Thinking...
-              </Typography>
+            <Box sx={{
+              p: 2.5,
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              maxWidth: '80%',
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  {[0, 1, 2].map((index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: '50%',
+                        bgcolor: 'text.secondary',
+                        animation: `thinking-pulse 1.4s ease-in-out infinite`,
+                        animationDelay: `${index * 0.2}s`,
+                        '@keyframes thinking-pulse': {
+                          '0%, 60%, 100%': {
+                            transform: 'scale(0.8)',
+                            opacity: 0.4,
+                          },
+                          '30%': {
+                            transform: 'scale(1)',
+                            opacity: 1,
+                          },
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Thinking...
+                </Typography>
+              </Box>
             </Box>
           </Box>
         )}
@@ -317,24 +407,70 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
       </Paper>
 
       {/* Input Area */}
-      <Paper component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          p: 2.5,
+          bgcolor: 'background.default',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <Box sx={{
+          display: 'flex',
+          gap: 1.5,
+          alignItems: 'flex-end',
+          maxWidth: 900,
+          mx: 'auto',
+        }}>
           <TextField
             fullWidth
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSubmit(e as any)
+              }
+            }}
+            placeholder="Message Vibodh AI..."
             disabled={isLoading}
             variant="outlined"
             autoFocus
             multiline
             maxRows={4}
+            slotProps={{
+              input: {
+                sx: {
+                  bgcolor: 'background.paper',
+                  '& input': {
+                    bgcolor: 'transparent',
+                  },
+                  '& textarea': {
+                    bgcolor: 'transparent',
+                  },
+                }
+              }
+            }}
           />
-          <IconButton type="submit" color="primary" disabled={isLoading || !input.trim()}>
-            <Send />
+          <IconButton
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            color="primary"
+            sx={{
+              width: 44,
+              height: 44,
+              '&:disabled': {
+                color: 'action.disabled',
+              },
+            }}
+          >
+            {isLoading ? <CircularProgress size={20} /> : <Send />}
           </IconButton>
         </Box>
-      </Paper>
+      </Box>
     </Box>
   )
 }
+

@@ -13,6 +13,7 @@ import {
   TableRow,
   Chip,
   Alert,
+  Button,
 } from '@mui/material'
 import {
   Chat as SlackIcon,
@@ -25,7 +26,7 @@ import {
   ArrowBack,
 } from '@mui/icons-material'
 import Link from 'next/link'
-import { Button } from '@mui/material'
+import DashboardLayout from '@/components/DashboardLayout'
 
 const sourceIcons: Record<string, any> = {
   slack: SlackIcon,
@@ -78,22 +79,24 @@ export default async function DocumentsPage() {
     .rpc('get_document_stats', { org_uuid: profile?.org_id })
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
+    <DashboardLayout>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Button
             component={Link}
             href="/dashboard"
             startIcon={<ArrowBack />}
-            sx={{ mb: 2 }}
+            variant="outlined"
+            size="small"
+            sx={{ mb: 3 }}
           >
             Back to Dashboard
           </Button>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
             Documents
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600 }}>
             View and manage ingested data from your connected integrations
           </Typography>
         </Box>
@@ -202,7 +205,7 @@ export default async function DocumentsPage() {
             </Table>
           </TableContainer>
         )}
-      </Box>
-    </Container>
+      </Container>
+    </DashboardLayout>
   )
 }

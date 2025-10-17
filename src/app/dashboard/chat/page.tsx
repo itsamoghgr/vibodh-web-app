@@ -4,6 +4,7 @@ import ChatInterface from './ChatInterface'
 import { Container, Box, Typography, Button } from '@mui/material'
 import { ArrowBack, History } from '@mui/icons-material'
 import Link from 'next/link'
+import DashboardLayout from '@/components/DashboardLayout'
 
 export default async function ChatPage({
   searchParams,
@@ -37,36 +38,59 @@ export default async function ChatPage({
   const sessionId = params.session || undefined
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4, height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
+    <DashboardLayout>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        bgcolor: 'background.default',
+      }}>
         {/* Header */}
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button component={Link} href="/dashboard" startIcon={<ArrowBack />}>
+        <Box sx={{
+          px: 3,
+          py: 2.5,
+          bgcolor: 'background.paper',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Button
+              component={Link}
+              href="/dashboard"
+              startIcon={<ArrowBack />}
+              variant="outlined"
+              size="small"
+            >
               Back
             </Button>
-            <div>
-              <Typography variant="h4" component="h1">
-                Chat with Vibodh AI
+            <Box>
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 600 }}>
+                AI Assistant
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Ask questions about your company's knowledge base
+                Powered by Vibodh
               </Typography>
-            </div>
+            </Box>
           </Box>
           <Button
             component={Link}
             href="/dashboard/chat/history"
             variant="outlined"
             startIcon={<History />}
+            size="small"
           >
             History
           </Button>
         </Box>
 
         {/* Chat Interface */}
-        <ChatInterface userId={user.id} orgId={profile.org_id} sessionId={sessionId} />
+        <Box sx={{ flex: 1, overflow: 'hidden' }}>
+          <ChatInterface userId={user.id} orgId={profile.org_id} sessionId={sessionId} />
+        </Box>
       </Box>
-    </Container>
+    </DashboardLayout>
   )
 }

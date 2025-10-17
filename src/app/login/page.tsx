@@ -77,23 +77,58 @@ export default function LoginPage() {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Welcome to Vibodh
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-            Sign in to access your AI-powered company insights
-          </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'background.default',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={2}
+          sx={{
+            p: { xs: 4, sm: 6 },
+            width: '100%',
+          }}
+        >
+          {/* Logo */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: 2,
+                bgcolor: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mx: 'auto',
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '1.75rem',
+                  lineHeight: 1,
+                }}
+              >
+                V
+              </Typography>
+            </Box>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, mb: 1 }}>
+              Sign In
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Welcome back to Vibodh
+            </Typography>
+          </Box>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -118,6 +153,7 @@ export default function LoginPage() {
               required
               autoComplete="email"
               disabled={magicLinkSent}
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -130,6 +166,7 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
               disabled={magicLinkSent}
+              sx={{ mb: 3 }}
             />
 
             <Button
@@ -138,12 +175,16 @@ export default function LoginPage() {
               variant="contained"
               size="large"
               disabled={loading || magicLinkSent}
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mb: 2 }}
             >
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
 
-            <Divider sx={{ my: 2 }}>OR</Divider>
+            <Divider sx={{ my: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR
+              </Typography>
+            </Divider>
 
             <Button
               fullWidth
@@ -151,22 +192,33 @@ export default function LoginPage() {
               size="large"
               onClick={handleMagicLink}
               disabled={loading || magicLinkSent}
-              sx={{ mb: 2 }}
+              sx={{ mb: 3 }}
             >
               Send Magic Link
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2">
+              <Typography variant="body2" color="text.secondary">
                 Don't have an account?{' '}
-                <MuiLink component={Link} href="/signup" underline="hover">
+                <MuiLink
+                  component={Link}
+                  href="/signup"
+                  sx={{
+                    color: 'primary.main',
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
                   Sign Up
                 </MuiLink>
               </Typography>
             </Box>
           </form>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }
