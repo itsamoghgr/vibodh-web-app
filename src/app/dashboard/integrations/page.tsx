@@ -17,6 +17,7 @@ import {
   Description as NotionIcon,
   Cloud as DriveIcon,
   BugReport as JiraIcon,
+  AssignmentTurnedIn as ClickUpIcon,
   CheckCircle,
   Add,
   ArrowBack,
@@ -42,6 +43,14 @@ const integrations: Integration[] = [
     description: 'Sync messages and conversations from your Slack workspace',
     icon: SlackIcon,
     color: '#4A154B',
+    available: true,
+  },
+  {
+    id: 'clickup',
+    name: 'ClickUp',
+    description: 'Import tasks, comments, and project data from ClickUp',
+    icon: ClickUpIcon,
+    color: '#7B68EE',
     available: true,
   },
   {
