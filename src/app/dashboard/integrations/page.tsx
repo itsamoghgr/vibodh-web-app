@@ -242,28 +242,56 @@ export default async function IntegrationsPage() {
                         </Typography>
 
                         {isConnected && connection && (
-                          <Paper 
+                          <Paper
                             elevation={0}
-                            sx={{ 
-                              mt: 2, 
-                              p: 2, 
-                              bgcolor: 'grey.50', 
+                            sx={{
+                              mt: 2,
+                              p: 2,
+                              bgcolor: 'grey.50',
                               borderRadius: 2,
                               border: '1px solid rgba(0, 0, 0, 0.06)',
                             }}
                           >
                             <Stack spacing={1}>
+                              {/* Live Sync Status Badge */}
+                              {connection.metadata?.webhook_active && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Box
+                                    sx={{
+                                      width: 8,
+                                      height: 8,
+                                      borderRadius: '50%',
+                                      bgcolor: '#10b981',
+                                      animation: 'pulse 2s infinite',
+                                      '@keyframes pulse': {
+                                        '0%, 100%': { opacity: 1 },
+                                        '50%': { opacity: 0.5 },
+                                      }
+                                    }}
+                                  />
+                                  <Typography variant="caption" sx={{ fontWeight: 600, color: '#10b981' }}>
+                                    Live Sync Active
+                                  </Typography>
+                                </Box>
+                              )}
+
                               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                                 Workspace: <strong>{connection.workspace_name}</strong>
                               </Typography>
                               <Typography variant="caption" color="text.secondary">
                                 Connected: {new Date(connection.connected_at).toLocaleDateString()}
                               </Typography>
-                              {connection.last_sync_at && (
+
+                              {/* Last Event Received */}
+                              {connection.metadata?.last_webhook_event ? (
+                                <Typography variant="caption" color="text.secondary">
+                                  Last event: {new Date(connection.metadata.last_webhook_event).toLocaleString()}
+                                </Typography>
+                              ) : connection.last_sync_at ? (
                                 <Typography variant="caption" color="text.secondary">
                                   Last sync: {new Date(connection.last_sync_at).toLocaleString()}
                                 </Typography>
-                              )}
+                              ) : null}
                             </Stack>
                           </Paper>
                         )}

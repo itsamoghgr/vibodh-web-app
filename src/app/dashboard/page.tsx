@@ -16,6 +16,8 @@ import {
   Chat as ChatIcon,
   TrendingUp as AnalyticsIcon,
   CheckCircle as CheckIcon,
+  Memory as MemoryIcon,
+  Today as TodayIcon,
 } from '@mui/icons-material'
 import Link from 'next/link'
 import DashboardLayout from '@/components/DashboardLayout'
@@ -67,6 +69,21 @@ export default async function DashboardPage() {
     .select('*', { count: 'exact', head: true })
     .eq('org_id', profile?.org_id)
 
+  // Get documents synced today
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const { count: docsSyncedToday } = await supabase
+    .from('documents')
+    .select('*', { count: 'exact', head: true })
+    .eq('org_id', profile?.org_id)
+    .gte('created_at', today.toISOString())
+
+  // Get AI memory entries count
+  const { count: memoryCount } = await supabase
+    .from('ai_memory')
+    .select('*', { count: 'exact', head: true })
+    .eq('org_id', profile?.org_id)
+
   return (
     <DashboardLayout>
       <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -81,8 +98,8 @@ export default async function DashboardPage() {
             </Box>
 
             {/* Stats Overview */}
-            <Box 
-              sx={{ 
+            <Box
+              sx={{
                 display: 'grid',
                 gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
                 gap: 3,
@@ -102,18 +119,18 @@ export default async function DashboardPage() {
                 }}
               />
               <DashboardCard
-                title="Your Role"
-                subtitle={profile?.email}
-                value={profile?.role}
-                icon={<PersonIcon />}
+                title="Docs Synced Today"
+                subtitle="New documents added"
+                value={docsSyncedToday || 0}
+                icon={<TodayIcon />}
                 color="secondary"
                 variant="stat"
               />
               <DashboardCard
-                title="Created"
-                subtitle="Organization setup"
-                value={new Date(organization?.created_at || '').toLocaleDateString()}
-                icon={<CheckIcon />}
+                title="AI Memory Entries"
+                subtitle="Total memories stored"
+                value={memoryCount || 0}
+                icon={<MemoryIcon />}
                 color="success"
                 variant="stat"
               />
