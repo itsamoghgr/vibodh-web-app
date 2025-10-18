@@ -28,6 +28,7 @@ import {
   Lightbulb,
   Logout,
   AccountCircle,
+  Psychology,
 } from '@mui/icons-material'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -68,6 +69,11 @@ const navigationItems = [
     label: 'Insights',
     icon: Lightbulb,
     href: '/dashboard/insights',
+  },
+  {
+    label: 'AI Brain',
+    icon: Psychology,
+    href: '/dashboard/ai-brain',
   },
   {
     label: 'Analytics',
