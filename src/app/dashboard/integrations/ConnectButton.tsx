@@ -37,9 +37,9 @@ export default function ConnectButton({
       // Different OAuth endpoints for different integrations
       let url: string
       if (integration.id === 'clickup') {
-        url = `${backendUrl}/api/clickup/connect?org_id=${orgId}`
+        url = `${backendUrl}/api/v1/clickup/connect?org_id=${orgId}`
       } else {
-        url = `${backendUrl}/api/connect/${integration.id}?org_id=${orgId}`
+        url = `${backendUrl}/api/v1/slack/connect?org_id=${orgId}`
       }
 
       console.log('Connecting to:', url, 'org_id:', orgId)
@@ -60,7 +60,7 @@ export default function ConnectButton({
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${backendUrl}/api/connections/${connectionId}`, {
+      const response = await fetch(`${backendUrl}/api/v1/connections/${connectionId}`, {
         method: 'DELETE',
       })
 
@@ -85,9 +85,9 @@ export default function ConnectButton({
       // Different sync endpoints for different integrations
       let url: string
       if (integration.id === 'clickup') {
-        url = `${backendUrl}/api/clickup/sync/${connectionId}?org_id=${orgId}`
+        url = `${backendUrl}/api/v1/clickup/sync/${connectionId}?org_id=${orgId}`
       } else {
-        url = `${backendUrl}/api/ingest/${integration.id}`
+        url = `${backendUrl}/api/v1/slack/ingest`
       }
 
       const response = await fetch(url, {

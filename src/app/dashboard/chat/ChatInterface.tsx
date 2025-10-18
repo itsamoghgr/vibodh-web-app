@@ -64,7 +64,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
   const loadSession = async (sid: string) => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${backendUrl}/api/chat/${sid}`)
+      const response = await fetch(`${backendUrl}/api/v1/chat/${sid}`)
       if (response.ok) {
         const data = await response.json()
         setMessages(data.messages)
@@ -92,7 +92,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${backendUrl}/api/chat/stream`, {
+      const response = await fetch(`${backendUrl}/api/v1/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -172,7 +172,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
   const handleFeedback = async (messageId: string, rating: 'positive' | 'negative') => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      await fetch(`${backendUrl}/api/chat/feedback?user_id=${userId}`, {
+      await fetch(`${backendUrl}/api/v1/chat/feedback?user_id=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

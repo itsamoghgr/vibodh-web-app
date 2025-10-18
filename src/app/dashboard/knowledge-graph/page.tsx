@@ -46,21 +46,21 @@ export default async function KnowledgeGraphPage() {
 
   // Get KG stats
   const statsResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/kg/stats/${orgId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/stats/${orgId}`,
     { cache: 'no-store' }
   )
   const stats = statsResponse.ok ? await statsResponse.json() : null
 
   // Get recent entities
   const entitiesResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/kg/entities/${orgId}?limit=20`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/entities/${orgId}?limit=20`,
     { cache: 'no-store' }
   )
   const entitiesData = entitiesResponse.ok ? await entitiesResponse.json() : { entities: [] }
 
   // Get recent edges
   const edgesResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/kg/edges/${orgId}?limit=20`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/edges/${orgId}?limit=20`,
     { cache: 'no-store' }
   )
   const edgesData = edgesResponse.ok ? await edgesResponse.json() : { edges: [] }

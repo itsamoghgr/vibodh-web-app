@@ -21,7 +21,7 @@ export default function RetryFailedButton({ orgId, failedCount }: RetryFailedBut
     setLoading(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/retry-failed-embeddings/${orgId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/documents/retry-failed-embeddings/${orgId}`,
         { method: 'POST' }
       )
 

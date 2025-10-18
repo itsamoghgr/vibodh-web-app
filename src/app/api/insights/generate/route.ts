@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Call backend API to generate insights
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-    const response = await fetch(`${apiUrl}/api/insights/run/${orgId}`, {
+    const response = await fetch(`${apiUrl}/api/v1/insights/run/${orgId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

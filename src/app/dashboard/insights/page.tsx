@@ -47,7 +47,7 @@ export default async function InsightsPage() {
 
   // Fetch insight stats
   const statsResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/insights/stats/${orgId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/insights/stats/${orgId}`,
     { cache: 'no-store' }
   )
   const stats = statsResponse.ok
@@ -65,7 +65,7 @@ export default async function InsightsPage() {
 
   // Fetch recent insights
   const insightsResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/insights/list/${orgId}?limit=20`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/insights/list/${orgId}?limit=20`,
     { cache: 'no-store' }
   )
   const insightsData = insightsResponse.ok

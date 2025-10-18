@@ -50,7 +50,7 @@ export default async function ChatHistoryPage() {
   let sessions: ChatSession[] = []
 
   try {
-    const response = await fetch(`${backendUrl}/api/chat/history?user_id=${user.id}&limit=20`, {
+    const response = await fetch(`${backendUrl}/api/v1/chat/history?user_id=${user.id}&limit=20`, {
       cache: 'no-store',
     })
     if (response.ok) {
