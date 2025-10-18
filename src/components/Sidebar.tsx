@@ -24,6 +24,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  AccountTree,
 } from '@mui/icons-material'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -54,6 +55,11 @@ const navigationItems = [
     label: 'Documents',
     icon: Description,
     href: '/dashboard/documents',
+  },
+  {
+    label: 'Knowledge Graph',
+    icon: AccountTree,
+    href: '/dashboard/knowledge-graph',
   },
   {
     label: 'Analytics',
