@@ -25,6 +25,9 @@ import {
   ChevronLeft,
   ChevronRight,
   AccountTree,
+  Lightbulb,
+  Logout,
+  AccountCircle,
 } from '@mui/icons-material'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -60,6 +63,11 @@ const navigationItems = [
     label: 'Knowledge Graph',
     icon: AccountTree,
     href: '/dashboard/knowledge-graph',
+  },
+  {
+    label: 'Insights',
+    icon: Lightbulb,
+    href: '/dashboard/insights',
   },
   {
     label: 'Analytics',
@@ -205,20 +213,105 @@ export default function Sidebar({ open, onClose, variant = 'persistent' }: Sideb
       </List>
 
       {/* Footer */}
-      {!collapsed && (
-        <>
-          <Divider />
-          <Box sx={{ p: 2 }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: 'block', textAlign: 'center' }}
+      <Divider />
+
+      {/* User Profile & Logout */}
+      <Box sx={{ p: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: collapsed ? 0 : 2,
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            mb: collapsed ? 0 : 2,
+          }}
+        >
+          <AccountCircle
+            sx={{
+              fontSize: 40,
+              color: 'text.secondary',
+            }}
+          />
+          {!collapsed && (
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                User Name
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  display: 'block',
+                }}
+              >
+                user@example.com
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        {!collapsed && (
+          <form action="/auth/signout" method="POST">
+            <IconButton
+              type="submit"
+              sx={{
+                width: '100%',
+                borderRadius: 2,
+                py: 1,
+                display: 'flex',
+                justifyContent: 'flex-start',
+                gap: 1,
+                color: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.lighter',
+                },
+              }}
             >
-              Vibodh v1.0
-            </Typography>
-          </Box>
-        </>
-      )}
+              <Logout />
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Logout
+              </Typography>
+            </IconButton>
+          </form>
+        )}
+
+        {collapsed && (
+          <form action="/auth/signout" method="POST">
+            <IconButton
+              type="submit"
+              sx={{
+                color: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.lighter',
+                },
+              }}
+            >
+              <Logout />
+            </IconButton>
+          </form>
+        )}
+
+        {!collapsed && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block', textAlign: 'center', mt: 2 }}
+          >
+            Vibodh v1.0
+          </Typography>
+        )}
+      </Box>
     </Box>
   )
 
