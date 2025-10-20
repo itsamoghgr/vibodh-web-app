@@ -88,6 +88,57 @@
   - Detailed statistics
   - Error logs when applicable
 
+### 🧠 **Memory Dashboard** (Phase 3, Step 2)
+- **Consolidated Insights**:
+  - View all organizational memory
+  - Filter by memory type (conversation, insight, decision, update)
+  - Importance-based sorting
+  - Access tracking
+
+- **Memory Management**:
+  - Automatic consolidation status
+  - Decay visualization
+  - Memory search and retrieval
+  - Expiration tracking
+
+### 📊 **AI Performance** (Phase 3, Step 3)
+- **Performance Metrics**:
+  - Real-time accuracy, response time, feedback stats
+  - Module success rates (RAG, KG, Memory, Insights)
+  - Response time by intent type
+  - Confidence and accuracy trends
+
+- **Adaptive Configuration**:
+  - View current module weights
+  - LLM parameter display
+  - Optimization history
+  - Manual optimization trigger
+
+### 🧬 **Knowledge Evolution** (Phase 3, Step 4) - NEW!
+- **Meta Rules Tab**:
+  - Discovered reasoning patterns
+  - Rule confidence and success rates
+  - Application count tracking
+  - Category filtering
+
+- **Schema Evolution Tab**:
+  - Proposed KG entity/relation types
+  - Approval/rejection workflow
+  - Evolution history
+  - Impact analysis
+
+- **Model Snapshots Tab**:
+  - Configuration before/after comparisons
+  - Parameter change visualization
+  - Performance metric trends
+  - Snapshot timeline
+
+- **Trends & Patterns Tab**:
+  - Entity type growth charts (Recharts)
+  - LLM-powered trend analysis
+  - Emerging topics detection
+  - Visual analytics
+
 ### 🎨 **User Interface**
 
 #### Design System

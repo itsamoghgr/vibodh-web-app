@@ -29,6 +29,7 @@ import {
   Logout,
   AccountCircle,
   Psychology,
+  AutoAwesome,
 } from '@mui/icons-material'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -71,14 +72,19 @@ const navigationItems = [
     href: '/dashboard/insights',
   },
   {
-    label: 'AI Brain',
+    label: 'Memory',
     icon: Psychology,
-    href: '/dashboard/ai-brain',
+    href: '/dashboard/memory',
   },
   {
-    label: 'Analytics',
+    label: 'AI Performance',
     icon: Analytics,
-    href: '/dashboard/analytics',
+    href: '/dashboard/ai-performance',
+  },
+  {
+    label: 'Knowledge Evolution',
+    icon: AutoAwesome,
+    href: '/dashboard/knowledge-evolution',
   },
   {
     label: 'Settings',
