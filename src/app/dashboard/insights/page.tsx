@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import DashboardLayout from '@/components/DashboardLayout'
 import {
   Container,
   Typography,
@@ -35,13 +34,13 @@ export default async function InsightsPage() {
 
   if (!orgId) {
     return (
-      <DashboardLayout>
+      
         <Container maxWidth="lg" sx={{ py: 4 }}>
           <Typography color="error">
             Organization not found. Please contact support.
           </Typography>
         </Container>
-      </DashboardLayout>
+      
     )
   }
 
@@ -73,7 +72,7 @@ export default async function InsightsPage() {
     : { insights: [], count: 0 }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
         <Box
@@ -122,6 +121,6 @@ export default async function InsightsPage() {
           </Box>
         </Box>
       </Container>
-    </DashboardLayout>
+    
   )
 }

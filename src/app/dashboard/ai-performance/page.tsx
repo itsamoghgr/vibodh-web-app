@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import DashboardLayout from '@/components/DashboardLayout'
 import AIPerformanceDashboard from './AIPerformanceDashboard'
 
 export default async function AIPerformancePage() {
@@ -27,8 +26,8 @@ export default async function AIPerformancePage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <AIPerformanceDashboard />
-    </DashboardLayout>
+    
   )
 }

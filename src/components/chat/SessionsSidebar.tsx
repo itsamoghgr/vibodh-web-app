@@ -144,17 +144,6 @@ export default function SessionsSidebar({ userId, orgId, onToggleMainMenu }: Ses
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Header */}
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        {/* Toggle to Main Menu Button */}
-        <Button
-          variant="outlined"
-          fullWidth
-          startIcon={<ArrowBackIcon />}
-          onClick={onToggleMainMenu}
-          sx={{ mb: 2 }}
-        >
-          Main Menu
-        </Button>
-
         {/* New Chat Button */}
         <Button
           variant="contained"

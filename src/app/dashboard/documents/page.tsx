@@ -11,7 +11,6 @@ import {
 } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
 import DocumentsTable from '@/components/DocumentsTable'
 import RetryFailedButton from '@/components/RetryFailedButton'
 
@@ -53,7 +52,7 @@ export default async function DocumentsPage() {
     .eq('embedding_status', 'failed')
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -127,6 +126,6 @@ export default async function DocumentsPage() {
           <DocumentsTable documents={documents} />
         )}
       </Container>
-    </DashboardLayout>
+    
   )
 }

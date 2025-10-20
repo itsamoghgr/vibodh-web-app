@@ -18,7 +18,6 @@ import {
   BugReport,
 } from '@mui/icons-material'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
 import KGStatsCards from '@/components/KGStatsCards'
 import KGEntitiesTable from '@/components/KGEntitiesTable'
 import KGEdgesTable from '@/components/KGEdgesTable'
@@ -66,7 +65,7 @@ export default async function KnowledgeGraphPage() {
   const edgesData = edgesResponse.ok ? await edgesResponse.json() : { edges: [] }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -169,6 +168,6 @@ export default async function KnowledgeGraphPage() {
           <KGEdgesTable edges={edgesData.edges} />
         </Box>
       </Container>
-    </DashboardLayout>
+    
   )
 }

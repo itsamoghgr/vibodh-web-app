@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import DashboardLayout from '@/components/DashboardLayout'
 import KnowledgeEvolutionDashboard from './KnowledgeEvolutionDashboard'
 
 export default async function KnowledgeEvolutionPage() {
@@ -27,8 +26,8 @@ export default async function KnowledgeEvolutionPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <KnowledgeEvolutionDashboard />
-    </DashboardLayout>
+    
   )
 }

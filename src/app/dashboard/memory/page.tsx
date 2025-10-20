@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import DashboardLayout from '@/components/DashboardLayout'
 import { Container } from '@mui/material'
 import MemoryDashboard from './MemoryDashboard'
 
@@ -28,8 +27,8 @@ export default async function MemoryPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <MemoryDashboard />
-    </DashboardLayout>
+    
   )
 }

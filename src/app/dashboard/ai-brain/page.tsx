@@ -19,7 +19,6 @@ import {
 } from '@mui/material'
 import { ArrowBack, Psychology, Speed } from '@mui/icons-material'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
 
 export default async function AIBrainPage() {
   const supabase = await createClient()
@@ -70,7 +69,7 @@ export default async function AIBrainPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -257,6 +256,6 @@ export default async function AIBrainPage() {
           </CardContent>
         </Card>
       </Container>
-    </DashboardLayout>
+    
   )
 }

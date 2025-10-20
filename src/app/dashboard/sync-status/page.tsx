@@ -20,7 +20,6 @@ import {
 import { ArrowBack, CheckCircle, Error, Schedule } from '@mui/icons-material'
 import Link from 'next/link'
 import RefreshButton from './RefreshButton'
-import DashboardLayout from '@/components/DashboardLayout'
 
 export default async function SyncStatusPage() {
   const supabase = await createClient()
@@ -133,7 +132,7 @@ export default async function SyncStatusPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -340,6 +339,6 @@ export default async function SyncStatusPage() {
           </CardContent>
         </Card>
       </Container>
-    </DashboardLayout>
+    
   )
 }

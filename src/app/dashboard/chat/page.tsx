@@ -1,37 +1,75 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import NewChatPage from './NewChatPage'
+'use client'
 
-export default async function ChatPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ session?: string }>
-}) {
-  const supabase = await createClient()
+import { Box } from '@mui/material'
+import { useApp } from '@/contexts/AppContext'
+import { useSearchParams } from 'next/navigation'
+import { ChatProvider } from '@/contexts/ChatContext'
+import SessionsSidebar from '@/components/chat/SessionsSidebar'
+import ChatArea from '@/components/chat/ChatArea'
+import ContextDrawer from '@/components/chat/ContextDrawer'
+import NotificationToast from '@/components/chat/NotificationToast'
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+const SESSIONS_WIDTH = 280
+const CONTEXT_WIDTH = 320
 
-  if (!user) {
-    redirect('/login')
-  }
+export default function ChatPage() {
+  const { user, profile } = useApp()
+  const searchParams = useSearchParams()
+  const sessionId = searchParams.get('session') || undefined
 
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
+  return (
+    <ChatProvider>
+      <Box
+        sx={{
+          display: 'flex',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Left: Sessions Sidebar */}
+        <Box
+          sx={{
+            width: SESSIONS_WIDTH,
+            flexShrink: 0,
+            borderRight: 1,
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+          }}
+        >
+          <SessionsSidebar userId={user.id} orgId={profile.orgId} />
+        </Box>
 
-  if (!profile?.org_id) {
-    redirect('/dashboard')
-  }
+        {/* Center: Chat Area */}
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <ChatArea userId={user.id} orgId={profile.orgId} />
+        </Box>
 
-  // Get session ID from URL query param
-  const params = await searchParams
-  const sessionId = params.session || undefined
+        {/* Right: Context Drawer */}
+        <Box
+          sx={{
+            width: CONTEXT_WIDTH,
+            flexShrink: 0,
+            borderLeft: 1,
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            display: { xs: 'none', lg: 'flex' },
+            flexDirection: 'column',
+          }}
+        >
+          <ContextDrawer />
+        </Box>
+      </Box>
 
-  return <NewChatPage userId={user.id} orgId={profile.org_id} sessionId={sessionId} />
+      <NotificationToast />
+    </ChatProvider>
+  )
 }

@@ -25,7 +25,6 @@ import {
 } from '@mui/icons-material'
 import ConnectButton from './ConnectButton'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
 
 interface Integration {
   id: string
@@ -139,7 +138,7 @@ export default async function IntegrationsPage() {
   const connectedSources = new Set(connections?.map((c) => c.source_type) || [])
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
             {/* Header */}
             <Box sx={{ mb: 4 }}>
@@ -326,6 +325,6 @@ export default async function IntegrationsPage() {
               })}
             </Box>
       </Container>
-    </DashboardLayout>
+    
   )
 }

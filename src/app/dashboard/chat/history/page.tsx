@@ -22,7 +22,6 @@ import {
 } from '@mui/material'
 import { ArrowBack, Chat, Delete } from '@mui/icons-material'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
 
 interface ChatSession {
   id: string
@@ -141,7 +140,7 @@ export default function ChatHistoryPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -234,6 +233,6 @@ export default function ChatHistoryPage() {
           </>
         )}
       </Container>
-    </DashboardLayout>
+    
   )
 }
