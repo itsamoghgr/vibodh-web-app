@@ -32,6 +32,7 @@ import {
   AutoAwesome,
   CheckCircle,
   Visibility,
+  TrendingUp,
 } from '@mui/icons-material'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -97,6 +98,16 @@ const navigationItems = [
     label: 'Observability',
     icon: Visibility,
     href: '/dashboard/observability',
+  },
+  {
+    label: 'CIL Intelligence',
+    icon: Psychology,
+    href: '/dashboard/cil-intelligence',
+  },
+  {
+    label: 'Ads Analytics',
+    icon: TrendingUp,
+    href: '/dashboard/ads-analytics',
   },
   {
     label: 'Settings',

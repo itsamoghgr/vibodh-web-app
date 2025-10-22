@@ -47,6 +47,22 @@ export const ENTITY_TYPE_CONFIG = {
     size: 14,
     label: 'Insight',
   },
+  // Ads domain entity types (Phase 6.5)
+  ad_campaign: {
+    color: '#3b82f6', // blue-500
+    size: 18,
+    label: 'Ad Campaign',
+  },
+  ad_platform: {
+    color: '#8b5cf6', // purple-500
+    size: 16,
+    label: 'Ad Platform',
+  },
+  optimization_action: {
+    color: '#10b981', // green-500
+    size: 14,
+    label: 'Optimization',
+  },
 } as const
 
 /**
