@@ -9,7 +9,7 @@
 
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type MessageType = 'text' | 'action_plan' | 'insight' | 'task' | 'system_event' | 'reflection';
-export type ActionStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'executing' | 'completed' | 'failed' | 'cancelled';
+export type ActionStatus = 'draft' | 'pending' | 'pending_approval' | 'approved' | 'rejected' | 'executing' | 'completed' | 'failed' | 'cancelled';
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 export type AgentType = 'communication_agent' | 'marketing_agent' | 'ops_agent' | 'data_agent' | 'insight_agent';
 
@@ -104,17 +104,17 @@ export type ChatMessage =
 // ============================================================================
 
 export interface ActionStep {
-  stepIndex: number;
-  actionType: string;
-  actionName: string;
+  step_index: number;
+  action_type: string;
+  action_name: string;
   description: string;
-  targetIntegration: string;      // e.g., 'slack', 'hubspot'
-  targetResource?: Record<string, any>;
+  target_integration: string;      // e.g., 'slack', 'hubspot'
+  target_resource?: Record<string, any>;
   parameters: Record<string, any>;
-  riskLevel: RiskLevel;
-  requiresApproval: boolean;
-  dependsOn: number[];            // Indices of steps this depends on
-  estimatedDurationMs: number;
+  risk_level: RiskLevel;
+  requires_approval: boolean;
+  depends_on: number[];            // Indices of steps this depends on
+  estimated_duration_ms?: number;
   status?: ActionStatus;          // Runtime status
   result?: any;                   // Execution result
   error?: string;                 // Error message if failed
@@ -122,32 +122,32 @@ export interface ActionStep {
 
 export interface ActionPlan {
   id: string;
-  agentType: AgentType;
+  agent_type: AgentType;
   goal: string;
   description: string;
   steps: ActionStep[];
-  totalSteps: number;
-  completedSteps: number;
+  total_steps: number;
+  completed_steps: number;
   status: ActionStatus;
-  riskLevel: RiskLevel;
-  requiresApproval: boolean;
+  risk_level: RiskLevel;
+  requires_approval: boolean;
   context?: Record<string, any>;
-  confidenceScore: number;
-  estimatedTotalDurationMs: number;
-  createdAt: string;
-  updatedAt?: string;
-  approvedBy?: string;
-  approvedAt?: string;
-  executedSteps?: ExecutedStep[];
+  confidence_score: number;
+  estimated_total_duration_ms: number;
+  created_at: string;
+  updated_at?: string;
+  approved_by?: string;
+  approved_at?: string;
+  executed_steps?: ExecutedStep[];
 }
 
 export interface ExecutedStep {
-  stepIndex: number;
-  actionName: string;
+  step_index: number;
+  action_name: string;
   success: boolean;
   result?: any;
   error?: string;
-  executionTimeMs?: number;
+  execution_time_ms?: number;
   timestamp: string;
 }
 

@@ -1,6 +1,8 @@
 'use client'
 
-import { Box } from '@mui/material'
+import { useState, useEffect } from 'react'
+import { Box, Drawer, IconButton, Tooltip } from '@mui/material'
+import { Info as InfoIcon, Close as CloseIcon } from '@mui/icons-material'
 import { useApp } from '@/contexts/AppContext'
 import { useSearchParams } from 'next/navigation'
 import { ChatProvider } from '@/contexts/ChatContext'
@@ -10,12 +12,30 @@ import ContextDrawer from '@/components/chat/ContextDrawer'
 import NotificationToast from '@/components/chat/NotificationToast'
 
 const SESSIONS_WIDTH = 280
-const CONTEXT_WIDTH = 320
+const CONTEXT_WIDTH = 360
+const CONTEXT_DRAWER_STORAGE_KEY = 'vibodh-context-drawer-open'
 
 export default function ChatPage() {
   const { user, profile } = useApp()
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session') || undefined
+
+  // Context drawer state - load from localStorage, defaults to closed
+  const [contextOpen, setContextOpen] = useState(false)
+
+  // Load drawer state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem(CONTEXT_DRAWER_STORAGE_KEY)
+    if (savedState !== null) {
+      setContextOpen(savedState === 'true')
+    }
+  }, [])
+
+  // Save drawer state to localStorage whenever it changes
+  const handleContextToggle = (open: boolean) => {
+    setContextOpen(open)
+    localStorage.setItem(CONTEXT_DRAWER_STORAGE_KEY, String(open))
+  }
 
   return (
     <ChatProvider>
@@ -24,6 +44,7 @@ export default function ChatPage() {
           display: 'flex',
           height: '100%',
           overflow: 'hidden',
+          position: 'relative',
         }}
       >
         {/* Left: Sessions Sidebar */}
@@ -53,20 +74,59 @@ export default function ChatPage() {
           <ChatArea userId={user.id} orgId={profile.orgId} />
         </Box>
 
-        {/* Right: Context Drawer */}
-        <Box
+        {/* Floating Context Toggle Button */}
+        {!contextOpen && (
+          <Tooltip title="View Context & Sources" placement="left">
+            <IconButton
+              onClick={() => handleContextToggle(true)}
+              sx={{
+                position: 'absolute',
+                right: 16,
+                top: 16,
+                zIndex: 1000,
+                bgcolor: 'primary.main',
+                color: 'white',
+                boxShadow: 2,
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+
+        {/* Right: Collapsible Context Drawer */}
+        <Drawer
+          anchor="right"
+          open={contextOpen}
+          onClose={() => handleContextToggle(false)}
+          variant="persistent"
           sx={{
-            width: CONTEXT_WIDTH,
+            width: contextOpen ? CONTEXT_WIDTH : 0,
             flexShrink: 0,
-            borderLeft: 1,
-            borderColor: 'divider',
-            bgcolor: 'background.paper',
-            display: { xs: 'none', lg: 'flex' },
-            flexDirection: 'column',
+            '& .MuiDrawer-paper': {
+              width: CONTEXT_WIDTH,
+              position: 'relative',
+              height: '100%',
+              borderLeft: 1,
+              borderColor: 'divider',
+            },
           }}
         >
+          {/* Close Button inside drawer */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1, borderBottom: 1, borderColor: 'divider' }}>
+            <Tooltip title="Close Context" placement="left">
+              <IconButton onClick={() => handleContextToggle(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
           <ContextDrawer />
-        </Box>
+        </Drawer>
       </Box>
 
       <NotificationToast />

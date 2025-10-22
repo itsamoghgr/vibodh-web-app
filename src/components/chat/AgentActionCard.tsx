@@ -41,6 +41,8 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
   const [isRejecting, setIsRejecting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [localPlan, setLocalPlan] = useState(actionPlan);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [detailedPlan, setDetailedPlan] = useState<ActionPlan | null>(null);
 
   const getRiskColor = (riskLevel: ActionPlan['riskLevel']) => {
     switch (riskLevel) {
@@ -62,6 +64,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
       case 'draft':
         return 'default';
       case 'pending':
+      case 'pending_approval':  // Handle backend status format
         return 'warning';
       case 'approved':
         return 'info';
@@ -108,7 +111,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
         setLocalPlan({
           ...localPlan,
           status: 'completed',
-          executedSteps: result.execution.executed_steps
+          executed_steps: result.execution.executed_steps
         });
       } else {
         setLocalPlan({ ...localPlan, status: 'approved' });
@@ -163,40 +166,78 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
     }
   };
 
-  const progress = (localPlan.completedSteps / localPlan.totalSteps) * 100;
+  const fetchPlanDetails = async () => {
+    if (detailedPlan) return; // Already fetched
+
+    try {
+      setIsLoadingDetails(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const url = new URL(`${apiUrl}/api/v1/agents/plans/${localPlan.id}`);
+      url.searchParams.append('org_id', orgId);
+
+      const response = await fetch(url.toString());
+      if (!response.ok) throw new Error('Failed to fetch plan details');
+
+      const data = await response.json();
+      setDetailedPlan(data);
+      setLocalPlan(data); // Update local plan with full details
+    } catch (error) {
+      console.error('Failed to fetch plan details:', error);
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
+
+  const handleToggleDetails = async () => {
+    if (!showDetails && !detailedPlan) {
+      // Fetch details when expanding for the first time
+      await fetchPlanDetails();
+    }
+    setShowDetails(!showDetails);
+  };
+
+  // Safe defaults for potentially undefined values
+  const safeRiskLevel = localPlan.risk_level || 'medium';
+  const safeStatus = localPlan.status || 'pending';
+  const safeTotalSteps = localPlan.total_steps || 0;
+  const safeCompletedSteps = localPlan.completed_steps || 0;
+  const safeSteps = localPlan.steps || [];
+
+  const progress = safeTotalSteps > 0 ? (safeCompletedSteps / safeTotalSteps) * 100 : 0;
+  const planToDisplay = detailedPlan || localPlan;
 
   return (
-    <Card variant="outlined" sx={{ bgcolor: 'background.default', border: 2, borderColor: getRiskColor(localPlan.riskLevel) + '.main' }}>
+    <Card variant="outlined" sx={{ bgcolor: 'background.default', border: 2, borderColor: getRiskColor(safeRiskLevel) + '.main' }}>
       <CardContent>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-              {localPlan.goal}
+              {localPlan.goal || 'Untitled Plan'}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {localPlan.description}
+              {localPlan.description || 'No description'}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5, flexDirection: 'column', alignItems: 'flex-end' }}>
             <Chip
-              label={localPlan.riskLevel.toUpperCase()}
-              color={getRiskColor(localPlan.riskLevel)}
+              label={safeRiskLevel.toUpperCase()}
+              color={getRiskColor(safeRiskLevel)}
               size="small"
             />
-            <Chip label={localPlan.status} color={getStatusColor(localPlan.status)} size="small" />
+            <Chip label={safeStatus} color={getStatusColor(safeStatus)} size="small" />
           </Box>
         </Box>
 
         {/* Progress bar */}
-        {localPlan.status === 'executing' && (
+        {safeStatus === 'executing' && (
           <Box sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
               <Typography variant="caption" color="text.secondary">
                 Progress
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                {localPlan.completedSteps}/{localPlan.totalSteps} steps
+                {safeCompletedSteps}/{safeTotalSteps} steps
               </Typography>
             </Box>
             <LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
@@ -206,18 +247,18 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
         {/* Stats */}
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
           <Typography variant="caption" color="text.secondary">
-            {localPlan.totalSteps} step{localPlan.totalSteps > 1 ? 's' : ''}
+            {safeTotalSteps} step{safeTotalSteps > 1 ? 's' : ''}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            ~{(localPlan.estimatedTotalDurationMs / 1000).toFixed(0)}s estimated
+            ~{localPlan.estimated_total_duration_ms ? (localPlan.estimated_total_duration_ms / 1000).toFixed(0) : '?'}s estimated
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Confidence: {Math.round(localPlan.confidenceScore * 100)}%
+            Confidence: {localPlan.confidence_score ? Math.round(localPlan.confidence_score * 100) : '?'}%
           </Typography>
         </Box>
 
         {/* Action buttons */}
-        {localPlan.requiresApproval && (localPlan.status === 'pending' || localPlan.status === 'draft') && (
+        {localPlan.requires_approval && (safeStatus === 'pending' || safeStatus === 'pending_approval' || safeStatus === 'draft') && (
           <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
             <Button
               variant="contained"
@@ -243,9 +284,9 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
         )}
 
         {/* Show Run button only if not already executed */}
-        {localPlan.status === 'approved' &&
-         !localPlan.requiresApproval &&
-         (!localPlan.executedSteps || localPlan.executedSteps.length === 0) && (
+        {safeStatus === 'approved' &&
+         !localPlan.requires_approval &&
+         (!localPlan.executed_steps || localPlan.executed_steps.length === 0) && (
           <Box sx={{ mb: 2 }}>
             <Button
               variant="contained"
@@ -261,7 +302,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
         )}
 
         {/* Show execution results if plan has been executed */}
-        {localPlan.executedSteps && localPlan.executedSteps.length > 0 && (
+        {localPlan.executed_steps && localPlan.executed_steps.length > 0 && (
           <Box sx={{ mb: 2 }}>
             <Alert severity="success" icon={<CheckIcon />}>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
@@ -270,9 +311,9 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
               <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>
                 Execution Summary:
               </Typography>
-              {localPlan.executedSteps.map((step: any, idx: number) => (
+              {localPlan.executed_steps.map((step: any, idx: number) => (
                 <Typography key={idx} variant="caption" sx={{ display: 'block' }}>
-                  {step.success ? '✅' : '❌'} {step.action_name || step.actionName}
+                  {step.success ? '✅' : '❌'} {step.action_name}
                   {!step.success && step.error && ` - Error: ${step.error}`}
                 </Typography>
               ))}
@@ -283,8 +324,12 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
         {/* Show details toggle */}
         <Button
           size="small"
-          onClick={() => setShowDetails(!showDetails)}
-          endIcon={showDetails ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          onClick={handleToggleDetails}
+          endIcon={
+            isLoadingDetails ? <CircularProgress size={16} /> :
+            showDetails ? <ExpandLessIcon /> : <ExpandMoreIcon />
+          }
+          disabled={isLoadingDetails}
           sx={{ mb: showDetails ? 2 : 0 }}
         >
           {showDetails ? 'Hide' : 'Show'} Details
@@ -292,8 +337,34 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
 
         {/* Detailed steps */}
         <Collapse in={showDetails}>
-          <Stepper orientation="vertical" activeStep={localPlan.completedSteps}>
-            {localPlan.steps.map((step, index) => (
+          {planToDisplay.context && (
+            <Box sx={{ mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                Context & Reasoning
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                <strong>Intent:</strong> {planToDisplay.context.intent || 'N/A'}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                <strong>Topic:</strong> {planToDisplay.context.topic || 'N/A'}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                <strong>Urgency:</strong> {planToDisplay.context.urgency ? Math.round(planToDisplay.context.urgency * 100) + '%' : 'N/A'}
+              </Typography>
+              {planToDisplay.context.reasoning && (
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                  <strong>Reasoning:</strong> {planToDisplay.context.reasoning}
+                </Typography>
+              )}
+              {planToDisplay.context.channels && planToDisplay.context.channels.length > 0 && (
+                <Typography variant="caption" color="text.secondary" display="block">
+                  <strong>Channels:</strong> {planToDisplay.context.channels.join(', ')}
+                </Typography>
+              )}
+            </Box>
+          )}
+          <Stepper orientation="vertical" activeStep={planToDisplay.completed_steps || 0}>
+            {(planToDisplay.steps || []).map((step, index) => (
               <Step key={index} completed={step.status === 'completed'}>
                 <StepLabel
                   error={step.status === 'failed'}
@@ -306,7 +377,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
                   }
                 >
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {step.actionName}
+                    {step.action_name}
                   </Typography>
                 </StepLabel>
                 <StepContent>
@@ -314,7 +385,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
                     {step.description}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" display="block">
-                    Integration: {step.targetIntegration} · Risk: {step.riskLevel}
+                    Integration: {step.target_integration} · Risk: {step.risk_level}
                   </Typography>
                   {step.error && (
                     <Alert severity="error" sx={{ mt: 1 }}>
@@ -333,16 +404,16 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
         </Collapse>
 
         {/* Error message */}
-        {localPlan.status === 'failed' && (
+        {safeStatus === 'failed' && (
           <Alert severity="error" sx={{ mt: 2 }}>
             Plan execution failed. Check step details above.
           </Alert>
         )}
 
         {/* Completed message */}
-        {localPlan.status === 'completed' && (
+        {safeStatus === 'completed' && (
           <Alert severity="success" sx={{ mt: 2 }}>
-            Plan completed successfully! All {localPlan.totalSteps} steps executed.
+            Plan completed successfully! All {safeTotalSteps} steps executed.
           </Alert>
         )}
       </CardContent>

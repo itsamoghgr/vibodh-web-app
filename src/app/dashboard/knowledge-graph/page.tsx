@@ -18,9 +18,7 @@ import {
   BugReport,
 } from '@mui/icons-material'
 import Link from 'next/link'
-import KGStatsCards from '@/components/KGStatsCards'
-import KGEntitiesTable from '@/components/KGEntitiesTable'
-import KGEdgesTable from '@/components/KGEdgesTable'
+import KnowledgeGraphLoader from '@/components/KnowledgeGraphLoader'
 
 export default async function KnowledgeGraphPage() {
   const supabase = await createClient()
@@ -50,18 +48,19 @@ export default async function KnowledgeGraphPage() {
   )
   const stats = statsResponse.ok ? await statsResponse.json() : null
 
-  // Get recent entities
-  const entitiesResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/entities/${orgId}?limit=20`,
-    { cache: 'no-store' }
-  )
-  const entitiesData = entitiesResponse.ok ? await entitiesResponse.json() : { entities: [] }
+  // Get entities and edges (default limit from API)
+  const [entitiesResponse, edgesResponse] = await Promise.all([
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/entities/${orgId}`,
+      { cache: 'no-store' }
+    ),
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/edges/${orgId}`,
+      { cache: 'no-store' }
+    ),
+  ])
 
-  // Get recent edges
-  const edgesResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/kg/edges/${orgId}?limit=20`,
-    { cache: 'no-store' }
-  )
+  const entitiesData = entitiesResponse.ok ? await entitiesResponse.json() : { entities: [] }
   const edgesData = edgesResponse.ok ? await edgesResponse.json() : { edges: [] }
 
   return (
@@ -152,20 +151,19 @@ export default async function KnowledgeGraphPage() {
           </Grid>
         )}
 
-        {/* Entities Table */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-            Recent Entities
-          </Typography>
-          <KGEntitiesTable entities={entitiesData.entities} orgId={orgId || ''} />
-        </Box>
-
-        {/* Edges Table */}
+        {/* Interactive Knowledge Graph Visualization */}
         <Box>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-            Recent Relationships
+            Interactive Knowledge Graph
           </Typography>
-          <KGEdgesTable edges={edgesData.edges} />
+          <KnowledgeGraphLoader
+            initialEntities={entitiesData.entities || []}
+            initialEdges={edgesData.edges || []}
+            orgId={orgId || ''}
+            totalEntities={stats?.total_entities || 0}
+            totalEdges={stats?.total_edges || 0}
+            apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
+          />
         </Box>
       </Container>
     

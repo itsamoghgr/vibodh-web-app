@@ -16,7 +16,7 @@ interface AppShellProps {
 export default function AppShell({ children, user, profile, organization }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true })
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!sidebarOpen)

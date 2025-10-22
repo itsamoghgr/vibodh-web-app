@@ -111,8 +111,8 @@ export default function ContextDrawer() {
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }}>
               <List dense disablePadding>
-                {contextDrawer.recentSources.map((source) => (
-                  <ListItem key={source.id} sx={{ px: 2, py: 1 }}>
+                {contextDrawer.recentSources.map((source, index) => (
+                  <ListItem key={`${source.type}-${index}-${source.title}`} sx={{ px: 2, py: 1 }}>
                     <Box sx={{ mr: 1, color: 'text.secondary', display: 'flex' }}>
                       {getContextIcon(source.type)}
                     </Box>
