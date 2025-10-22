@@ -114,7 +114,7 @@
   - Optimization history
   - Manual optimization trigger
 
-### 🧬 **Knowledge Evolution** (Phase 3, Step 4) - NEW!
+### 🧬 **Knowledge Evolution** (Phase 3, Step 4)
 - **Meta Rules Tab**:
   - Discovered reasoning patterns
   - Rule confidence and success rates
@@ -139,6 +139,46 @@
   - Emerging topics detection
   - Visual analytics
 
+### ✅ **Human-in-the-Loop Approvals** (Phase 4) - NEW!
+- **Approval Dashboard** (`/dashboard/approvals`):
+  - Real-time pending actions table
+  - Risk-level badges (low, medium, high, critical)
+  - Approve/Reject actions with reasoning
+  - Action plan details visualization
+  - Auto-approval timeout display
+  - Approval statistics cards
+
+- **Analytics & Tracking**:
+  - Pending, approved, rejected, and expired counts
+  - Approval rate percentage
+  - Average approval time metrics
+  - Historical approval trends
+
+### 📊 **Observability Dashboard** (Phase 4) - NEW!
+- **System Overview** (`/dashboard/observability`):
+  - Real-time system health status
+  - Total plans, success rate, active integrations
+  - Pending approvals counter
+  - Agent count and health indicators
+
+- **Agent Performance Metrics**:
+  - Per-agent execution counts
+  - Success rates and failure analysis
+  - Average execution times
+  - Total actions performed
+
+- **Integration Health Monitoring**:
+  - Integration status (healthy, degraded, failed)
+  - Response time tracking
+  - Last health check timestamps
+  - Overall integration health status
+
+- **Real-time Event Stream**:
+  - Recent agent-to-agent events
+  - Event type visualization
+  - Source and target agent tracking
+  - Auto-refresh (30-second intervals)
+
 ### 🎨 **User Interface**
 
 #### Design System
@@ -156,11 +196,13 @@
 - **Progress Indicators**: Visual feedback for long operations
 
 ### 🔐 **Authentication & Security**
-- **Supabase Auth**: Secure authentication system
+- **Organization ID Pattern**: org_id retrieved from localStorage for multi-tenancy
+- **Backend URL Configuration**: NEXT_PUBLIC_API_URL environment variable
+- **Query Parameter Pattern**: org_id passed as URL query parameter to backend APIs
 - **Protected Routes**: Dashboard requires authentication
-- **Session Management**: Persistent login state
+- **Session Management**: Persistent login state via localStorage
 - **Logout Functionality**: Secure session termination
-- **Organization-based Access**: Multi-tenant architecture
+- **Multi-tenant Architecture**: Organization-based data isolation
 
 ### ⚡ **Performance**
 - **Next.js 15**: Latest React framework with App Router
@@ -195,6 +237,8 @@
 - `/dashboard/insights` - AI insights dashboard
 - `/dashboard/documents` - Document browser
 - `/dashboard/sync-status` - Sync monitoring
+- `/dashboard/approvals` - Human-in-the-loop approval workflow (Phase 4)
+- `/dashboard/observability` - System health and agent performance (Phase 4)
 
 ---
 
@@ -205,10 +249,10 @@
 **React**: React 19.0.0
 
 **UI Components**:
-- Tailwind CSS 3.4.1
-- shadcn/ui components
-- Lucide React icons
-- Radix UI primitives
+- Material-UI (MUI) v6.3.1
+- MUI Icons
+- Flexbox layouts (migrated from Grid to Box)
+- Responsive design with Box and sx props
 
 **Authentication**: Supabase Auth (@supabase/ssr)
 
@@ -239,6 +283,8 @@ vibodh-web-app/
 │   │   │   ├── insights/       # Insights dashboard
 │   │   │   ├── documents/      # Document browser
 │   │   │   ├── sync-status/    # Sync monitoring
+│   │   │   ├── approvals/      # Approval workflow (Phase 4)
+│   │   │   ├── observability/  # System health dashboard (Phase 4)
 │   │   │   └── LogoutButton.tsx
 │   │   ├── api/                # API route handlers
 │   │   │   └── insights/
@@ -304,6 +350,21 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Confidence visualization
 - Refresh mechanism
 
+### Approvals (Phase 4)
+- **File**: `src/app/dashboard/approvals/page.tsx`
+- Pending actions table with risk badges
+- Approve/Reject action handlers
+- Approval statistics cards
+- Real-time data fetching with org_id
+
+### Observability (Phase 4)
+- **File**: `src/app/dashboard/observability/page.tsx`
+- System overview metrics
+- Agent performance table
+- Integration health monitoring
+- Real-time event stream
+- Auto-refresh every 30 seconds
+
 ---
 
 ## API Integration
@@ -311,7 +372,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 All API calls use the versioned endpoint structure:
 
 ```typescript
-const apiUrl = process.env.NEXT_PUBLIC_API_URL; // http://localhost:8000
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const orgId = localStorage.getItem('vibodh_org_id') || '72348f50-35a7-41da-9f48-c7bfaff6049d';
 
 // Examples:
 `${apiUrl}/api/v1/chat/stream`
@@ -319,6 +381,15 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL; // http://localhost:8000
 `${apiUrl}/api/v1/insights/list/{orgId}`
 `${apiUrl}/api/v1/slack/connect`
 `${apiUrl}/api/v1/clickup/sync/{connectionId}`
+
+// Phase 4 endpoints (with org_id query param):
+`${apiUrl}/api/v1/approvals/pending?org_id=${orgId}`
+`${apiUrl}/api/v1/approvals/${actionId}/decide?org_id=${orgId}`
+`${apiUrl}/api/v1/approvals/stats?org_id=${orgId}`
+`${apiUrl}/api/v1/analytics/overview?org_id=${orgId}`
+`${apiUrl}/api/v1/analytics/agents/performance?org_id=${orgId}`
+`${apiUrl}/api/v1/analytics/integrations/health?org_id=${orgId}`
+`${apiUrl}/api/v1/analytics/events/recent?org_id=${orgId}`
 ```
 
 ---

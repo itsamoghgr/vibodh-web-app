@@ -30,6 +30,8 @@ import {
   AccountCircle,
   Psychology,
   AutoAwesome,
+  CheckCircle,
+  Visibility,
 } from '@mui/icons-material'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -85,6 +87,16 @@ const navigationItems = [
     label: 'Knowledge Evolution',
     icon: AutoAwesome,
     href: '/dashboard/knowledge-evolution',
+  },
+  {
+    label: 'Approvals',
+    icon: CheckCircle,
+    href: '/dashboard/approvals',
+  },
+  {
+    label: 'Observability',
+    icon: Visibility,
+    href: '/dashboard/observability',
   },
   {
     label: 'Settings',
