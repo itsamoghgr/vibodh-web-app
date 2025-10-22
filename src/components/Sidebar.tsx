@@ -34,8 +34,9 @@ import {
   Visibility,
   TrendingUp,
 } from '@mui/icons-material'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
   open: boolean
@@ -121,6 +122,8 @@ export default function Sidebar({ open, onClose, variant = 'persistent' }: Sideb
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
 
   const drawerWidth = collapsed ? 64 : 240
   const drawerVariant = isMobile ? 'temporary' : variant
@@ -134,6 +137,25 @@ export default function Sidebar({ open, onClose, variant = 'persistent' }: Sideb
 
   const handleToggleCollapse = () => {
     setCollapsed(!collapsed)
+  }
+
+  const handleLogout = async () => {
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        console.error('Logout error:', error)
+      }
+
+      // Redirect to login page
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Redirect anyway even if there's an error
+      router.push('/login')
+    }
   }
 
   const drawerContent = (
@@ -297,44 +319,40 @@ export default function Sidebar({ open, onClose, variant = 'persistent' }: Sideb
         </Box>
 
         {!collapsed && (
-          <form action="/auth/signout" method="POST">
-            <IconButton
-              type="submit"
-              sx={{
-                width: '100%',
-                borderRadius: 2,
-                py: 1,
-                display: 'flex',
-                justifyContent: 'flex-start',
-                gap: 1,
-                color: 'error.main',
-                '&:hover': {
-                  bgcolor: 'error.lighter',
-                },
-              }}
-            >
-              <Logout />
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Logout
-              </Typography>
-            </IconButton>
-          </form>
+          <IconButton
+            onClick={handleLogout}
+            sx={{
+              width: '100%',
+              borderRadius: 2,
+              py: 1,
+              display: 'flex',
+              justifyContent: 'flex-start',
+              gap: 1,
+              color: 'error.main',
+              '&:hover': {
+                bgcolor: 'error.lighter',
+              },
+            }}
+          >
+            <Logout />
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              Logout
+            </Typography>
+          </IconButton>
         )}
 
         {collapsed && (
-          <form action="/auth/signout" method="POST">
-            <IconButton
-              type="submit"
-              sx={{
-                color: 'error.main',
-                '&:hover': {
-                  bgcolor: 'error.lighter',
-                },
-              }}
-            >
-              <Logout />
-            </IconButton>
-          </form>
+          <IconButton
+            onClick={handleLogout}
+            sx={{
+              color: 'error.main',
+              '&:hover': {
+                bgcolor: 'error.lighter',
+              },
+            }}
+          >
+            <Logout />
+          </IconButton>
         )}
 
         {!collapsed && (

@@ -34,6 +34,7 @@ import {
   Refresh as RefreshIcon,
   Timer as TimerIcon,
 } from '@mui/icons-material'
+import { useApp } from '@/contexts/AppContext'
 
 interface PendingApproval {
   id: string
@@ -60,6 +61,7 @@ interface ApprovalStats {
 }
 
 export default function ApprovalsPage() {
+  const { profile } = useApp()
   const [activeTab, setActiveTab] = useState(0)
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([])
   const [stats, setStats] = useState<ApprovalStats | null>(null)
@@ -80,19 +82,16 @@ export default function ApprovalsPage() {
     setError(null)
 
     try {
-      // Get org_id from AppContext (we'll need to add this)
-      // For now, use a placeholder - TODO: get from context
-      const orgId = localStorage.getItem('vibodh_org_id') || '72348f50-35a7-41da-9f48-c7bfaff6049d'
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
       // Fetch pending approvals
-      const pendingRes = await fetch(`${backendUrl}/api/v1/approvals/pending?org_id=${orgId}&limit=50`)
+      const pendingRes = await fetch(`${backendUrl}/api/v1/approvals/pending?org_id=${profile.orgId}&limit=50`)
       if (!pendingRes.ok) throw new Error('Failed to fetch pending approvals')
       const pendingData = await pendingRes.json()
       setPendingApprovals(pendingData.pending_approvals || [])
 
       // Fetch stats
-      const statsRes = await fetch(`${backendUrl}/api/v1/approvals/stats?org_id=${orgId}`)
+      const statsRes = await fetch(`${backendUrl}/api/v1/approvals/stats?org_id=${profile.orgId}`)
       if (!statsRes.ok) throw new Error('Failed to fetch stats')
       const statsData = await statsRes.json()
       setStats(statsData)
@@ -108,9 +107,8 @@ export default function ApprovalsPage() {
     setError(null)
 
     try {
-      const orgId = localStorage.getItem('vibodh_org_id') || '72348f50-35a7-41da-9f48-c7bfaff6049d'
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const res = await fetch(`${backendUrl}/api/v1/approvals/${approval.id}/decide?org_id=${orgId}`, {
+      const res = await fetch(`${backendUrl}/api/v1/approvals/${approval.id}/decide?org_id=${profile.orgId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -140,9 +138,8 @@ export default function ApprovalsPage() {
     setError(null)
 
     try {
-      const orgId = localStorage.getItem('vibodh_org_id') || '72348f50-35a7-41da-9f48-c7bfaff6049d'
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const res = await fetch(`${backendUrl}/api/v1/approvals/${selectedApproval.id}/decide?org_id=${orgId}`, {
+      const res = await fetch(`${backendUrl}/api/v1/approvals/${selectedApproval.id}/decide?org_id=${profile.orgId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

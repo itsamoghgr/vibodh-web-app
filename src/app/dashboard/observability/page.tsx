@@ -29,6 +29,7 @@ import {
   Error as ErrorIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material'
+import { useApp } from '@/contexts/AppContext'
 
 interface SystemOverview {
   total_plans: number
@@ -69,6 +70,7 @@ interface RecentEvent {
 }
 
 export default function ObservabilityPage() {
+  const { profile } = useApp()
   const [activeTab, setActiveTab] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -90,29 +92,28 @@ export default function ObservabilityPage() {
     setError(null)
 
     try {
-      const orgId = localStorage.getItem('vibodh_org_id') || '72348f50-35a7-41da-9f48-c7bfaff6049d'
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
       // Fetch overview
-      const overviewRes = await fetch(`${backendUrl}/api/v1/analytics/overview?org_id=${orgId}`)
+      const overviewRes = await fetch(`${backendUrl}/api/v1/analytics/overview?org_id=${profile.orgId}`)
       if (!overviewRes.ok) throw new Error('Failed to fetch overview')
       const overviewData = await overviewRes.json()
       setOverview(overviewData)
 
       // Fetch agent performance
-      const performanceRes = await fetch(`${backendUrl}/api/v1/analytics/agents/performance?org_id=${orgId}`)
+      const performanceRes = await fetch(`${backendUrl}/api/v1/analytics/agents/performance?org_id=${profile.orgId}`)
       if (!performanceRes.ok) throw new Error('Failed to fetch agent performance')
       const performanceData = await performanceRes.json()
       setAgentPerformance(performanceData.agents || [])
 
       // Fetch integration health
-      const healthRes = await fetch(`${backendUrl}/api/v1/analytics/integrations/health?org_id=${orgId}`)
+      const healthRes = await fetch(`${backendUrl}/api/v1/analytics/integrations/health?org_id=${profile.orgId}`)
       if (!healthRes.ok) throw new Error('Failed to fetch integration health')
       const healthData = await healthRes.json()
       setIntegrationHealth(healthData.integrations || [])
 
       // Fetch recent events
-      const eventsRes = await fetch(`${backendUrl}/api/v1/analytics/events/recent?org_id=${orgId}&limit=20`)
+      const eventsRes = await fetch(`${backendUrl}/api/v1/analytics/events/recent?org_id=${profile.orgId}&limit=20`)
       if (!eventsRes.ok) throw new Error('Failed to fetch events')
       const eventsData = await eventsRes.json()
       setRecentEvents(eventsData.events || [])
