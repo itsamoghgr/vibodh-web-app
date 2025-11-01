@@ -149,7 +149,7 @@ export default async function AIBrainPage() {
                             acc[log.intent] = (acc[log.intent] || 0) + 1
                             return acc
                           }, {} as Record<string, number>)
-                        ).sort((a, b) => b[1] - a[1])[0][0]
+                        ).sort((a: [string, number], b: [string, number]) => b[1] - a[1])[0][0]
                       : 'N/A'
                   : 'N/A'}
               </Typography>
