@@ -5,7 +5,6 @@ import {
   Container,
   Typography,
   Paper,
-  Grid,
   Button,
 } from '@mui/material'
 import {
@@ -92,8 +91,8 @@ export default async function KnowledgeGraphPage() {
 
         {/* Stats Cards */}
         {stats && (
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={6} md={3}>
+          <Box sx={{ display: 'flex', gap: 3, mb: 4, flexWrap: 'wrap' }}>
+            <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <AccountTree sx={{ fontSize: 40, color: 'primary.main' }} />
@@ -105,9 +104,9 @@ export default async function KnowledgeGraphPage() {
                   </Box>
                 </Box>
               </Paper>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Group sx={{ fontSize: 40, color: 'success.main' }} />
@@ -119,9 +118,9 @@ export default async function KnowledgeGraphPage() {
                   </Box>
                 </Box>
               </Paper>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Work sx={{ fontSize: 40, color: 'warning.main' }} />
@@ -133,9 +132,9 @@ export default async function KnowledgeGraphPage() {
                   </Box>
                 </Box>
               </Paper>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Topic sx={{ fontSize: 40, color: 'info.main' }} />
@@ -147,8 +146,8 @@ export default async function KnowledgeGraphPage() {
                   </Box>
                 </Box>
               </Paper>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         )}
 
         {/* Interactive Knowledge Graph Visualization */}
