@@ -42,7 +42,7 @@ export default function InteractiveGraph({
   height = 600,
 }: InteractiveGraphProps) {
   const theme = useTheme()
-  const fgRef = useRef<any>()
+  const fgRef = useRef<any>(null)
 
   // Use refs to avoid re-renders when highlighting changes
   const highlightNodesRef = useRef(new Set<string>())
