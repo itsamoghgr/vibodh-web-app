@@ -152,7 +152,7 @@ export default function NodeDetailsDrawer({
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
         <Box sx={{ flex: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <EntityIcon sx={{ fontSize: 28, color: ENTITY_TYPE_CONFIG[nodeData.entityType.toLowerCase()]?.color || '#757575' }} />
+            <EntityIcon sx={{ fontSize: 28, color: (ENTITY_TYPE_CONFIG as any)[nodeData.entityType.toLowerCase()]?.color || '#757575' }} />
             <Typography variant="h6" component="h2" fontWeight="bold">
               {nodeData.name || 'Unknown Entity'}
             </Typography>
