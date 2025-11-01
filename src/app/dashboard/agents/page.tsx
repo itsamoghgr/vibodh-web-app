@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   Button,
@@ -288,36 +287,36 @@ export default function AgentsPage() {
 
       {/* Statistics Cards */}
       {statistics && (
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <DashboardCard
               title="Total Plans"
               value={statistics.total_plans}
               icon={<AutoAwesomeIcon />}
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <DashboardCard
               title="Success Rate"
               value={`${(statistics.success_rate * 100).toFixed(0)}%`}
               icon={<CheckCircleIcon />}
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <DashboardCard
               title="Avg Execution Time"
               value={`${(statistics.average_execution_time_ms / 1000).toFixed(1)}s`}
               icon={<TimelineIcon />}
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <DashboardCard
               title="High Risk Actions"
               value={statistics.high_risk_actions}
               icon={<SecurityIcon />}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )}
 
       {/* Tabs for different views */}
@@ -550,8 +549,8 @@ export default function AgentsPage() {
               <Typography variant="h6" gutterBottom>
                 {selectedPlan.goal}
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                   <Typography variant="body2" color="text.secondary">
                     Status
                   </Typography>
@@ -560,8 +559,8 @@ export default function AgentsPage() {
                     color={getStatusColor(selectedPlan.status) as any}
                     size="small"
                   />
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                   <Typography variant="body2" color="text.secondary">
                     Risk Level
                   </Typography>
@@ -570,24 +569,24 @@ export default function AgentsPage() {
                     color={getRiskLevelColor(selectedPlan.risk_level) as any}
                     size="small"
                   />
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                   <Typography variant="body2" color="text.secondary">
                     Progress
                   </Typography>
                   <Typography>
                     {selectedPlan.completed_steps}/{selectedPlan.total_steps} steps completed
                   </Typography>
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                   <Typography variant="body2" color="text.secondary">
                     Requires Approval
                   </Typography>
                   <Typography>
                     {selectedPlan.requires_approval ? 'Yes' : 'No'}
                   </Typography>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
           )}
         </DialogContent>
