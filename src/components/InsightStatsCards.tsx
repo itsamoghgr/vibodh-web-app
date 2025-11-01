@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, Paper, Box, Typography } from '@mui/material'
+import { Paper, Box, Typography } from '@mui/material'
 import {
   Lightbulb,
   Work,
@@ -29,8 +29,8 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
   const avgConfidencePercent = Math.round((stats.avg_confidence || 0) * 100)
 
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12} sm={6} md={3}>
+    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
         <Paper sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Lightbulb sx={{ fontSize: 40, color: 'primary.main' }} />
@@ -42,9 +42,9 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
             </Box>
           </Box>
         </Paper>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
         <Paper sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Work sx={{ fontSize: 40, color: 'success.main' }} />
@@ -56,9 +56,9 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
             </Box>
           </Box>
         </Paper>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
         <Paper sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Group sx={{ fontSize: 40, color: 'info.main' }} />
@@ -70,9 +70,9 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
             </Box>
           </Box>
         </Paper>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
         <Paper sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Warning sx={{ fontSize: 40, color: 'error.main' }} />
@@ -84,9 +84,9 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
             </Box>
           </Box>
         </Paper>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
         <Paper sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <TrendingUp sx={{ fontSize: 40, color: 'warning.main' }} />
@@ -98,9 +98,9 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
             </Box>
           </Box>
         </Paper>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
         <Paper sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Assessment sx={{ fontSize: 40, color: 'secondary.main' }} />
@@ -112,7 +112,7 @@ export default function InsightStatsCards({ stats }: InsightStatsCardsProps) {
             </Box>
           </Box>
         </Paper>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   )
 }
