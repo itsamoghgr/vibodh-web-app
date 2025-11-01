@@ -1,9 +1,19 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+  Button,
+  Chip,
+  Select,
+  MenuItem,
+  FormControl,
+  Box,
+  CircularProgress,
+} from '@mui/material';
 import {
   Network,
   RefreshCw,
@@ -13,13 +23,6 @@ import {
   Target,
   Zap,
 } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface CampaignKnowledgeGraphProps {
   orgId: string;
@@ -272,15 +275,15 @@ export default function CampaignKnowledgeGraph({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Campaign Knowledge Graph</CardTitle>
+          <Typography variant="h6">Campaign Knowledge Graph</Typography>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] flex items-center justify-center bg-gray-50 rounded-lg">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-sm text-muted-foreground mt-4">Loading knowledge graph...</p>
-            </div>
-          </div>
+          <Box sx={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', borderRadius: 2 }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <CircularProgress sx={{ mb: 2 }} />
+              <Typography variant="body2" color="text.secondary">Loading knowledge graph...</Typography>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
     );
@@ -289,33 +292,33 @@ export default function CampaignKnowledgeGraph({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Network className="h-5 w-5" />
-              Campaign Knowledge Graph
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Network style={{ height: 20, width: 20 }} />
+              <Typography variant="h6">Campaign Knowledge Graph</Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Visualizing relationships between campaigns, platforms, and optimizations
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Select value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-              <SelectTrigger className="w-[180px]">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="full">Full Graph</SelectItem>
-                <SelectItem value="campaign">Campaigns & Platforms</SelectItem>
-                <SelectItem value="optimizations">Optimizations</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm" onClick={fetchGraphData}>
-              <RefreshCw className="h-4 w-4" />
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <Select
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value as any)}
+                startAdornment={<Filter style={{ height: 16, width: 16, marginRight: 8 }} />}
+              >
+                <MenuItem value="full">Full Graph</MenuItem>
+                <MenuItem value="campaign">Campaigns & Platforms</MenuItem>
+                <MenuItem value="optimizations">Optimizations</MenuItem>
+              </Select>
+            </FormControl>
+            <Button variant="outlined" size="small" onClick={fetchGraphData}>
+              <RefreshCw style={{ height: 16, width: 16 }} />
             </Button>
-          </div>
-        </div>
+          </Box>
+        </Box>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Insights */}
@@ -332,9 +335,11 @@ export default function CampaignKnowledgeGraph({
                   <div className="flex-1">
                     <p className="text-sm font-medium">{insight.message}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge className={getInsightBadgeStyle(insight.type)}>
-                        {insight.type.replace('_', ' ')}
-                      </Badge>
+                      <Chip
+                        label={insight.type.replace('_', ' ')}
+                        size="small"
+                        sx={{ textTransform: 'capitalize' }}
+                      />
                       <span className="text-xs text-muted-foreground">
                         {(insight.confidence * 100).toFixed(0)}% confidence
                       </span>
@@ -369,9 +374,12 @@ export default function CampaignKnowledgeGraph({
                         <div className="flex-1">
                           <p className="text-sm font-medium">{node.name}</p>
                           {node.metadata?.platform && (
-                            <Badge variant="outline" className="mt-1 text-xs">
-                              {node.metadata.platform.replace('_', ' ')}
-                            </Badge>
+                            <Chip
+                              label={node.metadata.platform.replace('_', ' ')}
+                              variant="outlined"
+                              size="small"
+                              sx={{ mt: 0.5, fontSize: '0.75rem', textTransform: 'capitalize' }}
+                            />
                           )}
                         </div>
                       </div>
@@ -444,8 +452,8 @@ export default function CampaignKnowledgeGraph({
               <span>{filteredNodes.length} entities</span>
               <span>{filteredEdges.length} relationships</span>
             </div>
-            <Button variant="ghost" size="sm">
-              <Maximize2 className="h-4 w-4 mr-2" />
+            <Button variant="text" size="small">
+              <Maximize2 style={{ height: 16, width: 16, marginRight: 8 }} />
               Full View
             </Button>
           </div>
