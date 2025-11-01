@@ -175,7 +175,7 @@ export default function PlatformComparison({
       case 'warning':
         return <Warning sx={{ color: 'warning.main' }} />;
       default:
-        return null;
+        return <TrendingUp sx={{ color: 'info.main' }} />;
     }
   };
 

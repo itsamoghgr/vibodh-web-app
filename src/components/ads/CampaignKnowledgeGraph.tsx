@@ -15,14 +15,14 @@ import {
   CircularProgress,
 } from '@mui/material';
 import {
-  Network,
-  RefreshCw,
-  Maximize2,
-  Filter,
+  AccountTree as Network,
+  Refresh as RefreshCw,
+  Fullscreen as Maximize2,
+  FilterList as Filter,
   TrendingUp,
-  Target,
-  Zap,
-} from 'lucide-react';
+  GpsFixed as Target,
+  Bolt as Zap,
+} from '@mui/icons-material';
 
 interface CampaignKnowledgeGraphProps {
   orgId: string;

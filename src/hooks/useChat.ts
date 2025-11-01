@@ -145,6 +145,8 @@ export function useChat(userId: string, orgId: string): UseChatReturn {
     async (content: string) => {
       if (!content.trim() || isLoading || isStreaming) return;
 
+      let assistantMessageId: string | null = null;
+
       try {
         setIsLoading(true);
         setIsStreaming(true);
@@ -162,7 +164,7 @@ export function useChat(userId: string, orgId: string): UseChatReturn {
         addMessage(userMessage);
 
         // Create assistant message placeholder
-        const assistantMessageId = `msg-${Date.now() + 1}`;
+        assistantMessageId = `msg-${Date.now() + 1}`;
         let assistantMessage: ChatMessage = {
           id: assistantMessageId,
           sessionId: currentSession?.id || 'temp',
@@ -231,9 +233,11 @@ export function useChat(userId: string, orgId: string): UseChatReturn {
         });
 
         // Update assistant message with error
-        updateMessage(assistantMessageId, {
-          content: 'Sorry, I encountered an error. Please try again.',
-        });
+        if (assistantMessageId) {
+          updateMessage(assistantMessageId, {
+            content: 'Sorry, I encountered an error. Please try again.',
+          });
+        }
       } finally {
         setIsLoading(false);
         setIsStreaming(false);
@@ -273,14 +277,6 @@ export function useChat(userId: string, orgId: string): UseChatReturn {
             messageCount: 1,
           });
         }
-        break;
-
-      case 'thinking':
-        // Show thinking indicator
-        setIsLoading(true);
-        updateMessage(messageId, {
-          content: '',
-        });
         break;
 
       case 'context':
@@ -324,11 +320,11 @@ export function useChat(userId: string, orgId: string): UseChatReturn {
           }));
 
           // Show notification for high-risk actions
-          if (event.actionPlan.riskLevel === 'high' || event.actionPlan.riskLevel === 'critical') {
+          if (event.actionPlan.risk_level === 'high' || event.actionPlan.risk_level === 'critical') {
             addNotification({
               type: 'warning',
               title: 'Action Approval Required',
-              message: `${event.actionPlan.riskLevel.toUpperCase()} risk action plan requires your approval`,
+              message: `${event.actionPlan.risk_level.toUpperCase()} risk action plan requires your approval`,
               duration: 0, // Manual dismiss
             });
           }
