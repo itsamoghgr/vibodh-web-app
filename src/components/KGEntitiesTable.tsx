@@ -42,8 +42,8 @@ interface Entity {
   id: string
   name: string
   type: string
-  metadata: any
-  created_at: string
+  metadata?: any
+  created_at?: string
 }
 
 interface KGEntitiesTableProps {
