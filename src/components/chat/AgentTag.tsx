@@ -83,7 +83,7 @@ export default function AgentTag({ capabilities, agentType, size = 'small' }: Ag
         <Tooltip title={getAgentTypeLabel(agentType)}>
           <Chip
             label={getAgentTypeLabel(agentType).replace(' Agent', '')}
-            size={size}
+            size={size === 'large' ? 'medium' : size}
             color="default"
             variant="outlined"
             sx={{ height: size === 'small' ? 20 : 24, fontSize: size === 'small' ? 10 : 12 }}
@@ -95,7 +95,7 @@ export default function AgentTag({ capabilities, agentType, size = 'small' }: Ag
           <Chip
             icon={getCapabilityIcon(capability)}
             label={getCapabilityLabel(capability)}
-            size={size}
+            size={size === 'large' ? 'medium' : size}
             color="primary"
             variant="outlined"
             sx={{

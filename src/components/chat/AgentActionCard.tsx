@@ -44,7 +44,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [detailedPlan, setDetailedPlan] = useState<ActionPlan | null>(null);
 
-  const getRiskColor = (riskLevel: ActionPlan['riskLevel']) => {
+  const getRiskColor = (riskLevel: ActionPlan['risk_level']) => {
     switch (riskLevel) {
       case 'low':
         return 'success';
@@ -83,7 +83,7 @@ export default function AgentActionCard({ actionPlan, userId, orgId }: AgentActi
 
   const getStepStatus = (step: ActionStep) => {
     if (step.status === 'completed') return 'completed';
-    if (step.status === 'executing' || step.status === 'in_progress') return 'active';
+    if (step.status === 'executing') return 'active';
     if (step.status === 'failed') return 'error';
     return 'pending';
   };

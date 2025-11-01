@@ -45,7 +45,7 @@ export default function ContextDrawer() {
     }
   };
 
-  const getRiskChipColor = (riskLevel: ActionPlan['riskLevel']) => {
+  const getRiskChipColor = (riskLevel: ActionPlan['risk_level']) => {
     switch (riskLevel) {
       case 'low':
         return 'success';
@@ -160,20 +160,20 @@ export default function ContextDrawer() {
                           {plan.goal}
                         </Typography>
                         <Chip
-                          label={plan.riskLevel}
+                          label={plan.risk_level}
                           size="small"
-                          color={getRiskChipColor(plan.riskLevel)}
+                          color={getRiskChipColor(plan.risk_level)}
                           sx={{ height: 18, fontSize: 10 }}
                         />
                       </Box>
                       <Typography variant="caption" color="text.secondary">
-                        {plan.totalSteps} steps · {plan.status}
+                        {plan.total_steps} steps · {plan.status}
                       </Typography>
-                      {plan.completedSteps > 0 && (
+                      {plan.completed_steps > 0 && (
                         <Box sx={{ mt: 1 }}>
                           <LinearProgress
                             variant="determinate"
-                            value={(plan.completedSteps / plan.totalSteps) * 100}
+                            value={(plan.completed_steps / plan.total_steps) * 100}
                             sx={{ height: 4, borderRadius: 2 }}
                           />
                         </Box>

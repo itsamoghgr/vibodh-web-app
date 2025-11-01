@@ -86,7 +86,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const updateMessage = useCallback((messageId: string, updates: Partial<ChatMessage>) => {
     setMessages((prev) =>
-      prev.map((msg) => (msg.id === messageId ? { ...msg, ...updates } : msg))
+      prev.map((msg) => (msg.id === messageId ? { ...msg, ...updates } as ChatMessage : msg))
     );
   }, []);
 
