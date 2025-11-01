@@ -95,7 +95,7 @@ export default function KGEntitiesTable({ entities, orgId }: KGEntitiesTableProp
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" color="text.secondary">
-                    {new Date(entity.created_at).toLocaleDateString()}
+                    {entity.created_at ? new Date(entity.created_at).toLocaleDateString() : 'N/A'}
                   </Typography>
                 </TableCell>
               </TableRow>
