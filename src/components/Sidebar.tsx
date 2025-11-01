@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Drawer,
   List,
@@ -14,6 +14,7 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
+  Collapse,
 } from '@mui/material'
 import {
   Dashboard,
@@ -21,7 +22,6 @@ import {
   Extension,
   Description,
   Analytics,
-  Settings,
   ChevronLeft,
   ChevronRight,
   AccountTree,
@@ -33,6 +33,9 @@ import {
   CheckCircle,
   Visibility,
   TrendingUp,
+  ExpandLess,
+  ExpandMore,
+  Layers,
 } from '@mui/icons-material'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -71,24 +74,35 @@ const navigationItems = [
     href: '/dashboard/knowledge-graph',
   },
   {
-    label: 'Insights',
-    icon: Lightbulb,
-    href: '/dashboard/insights',
-  },
-  {
-    label: 'Memory',
-    icon: Psychology,
-    href: '/dashboard/memory',
-  },
-  {
-    label: 'AI Performance',
-    icon: Analytics,
-    href: '/dashboard/ai-performance',
-  },
-  {
-    label: 'Knowledge Evolution',
-    icon: AutoAwesome,
-    href: '/dashboard/knowledge-evolution',
+    label: 'Intelligence Layer',
+    icon: Layers,
+    children: [
+      {
+        label: 'Insights',
+        icon: Lightbulb,
+        href: '/dashboard/insights',
+      },
+      {
+        label: 'Memory',
+        icon: Psychology,
+        href: '/dashboard/memory',
+      },
+      {
+        label: 'AI Performance',
+        icon: Analytics,
+        href: '/dashboard/ai-performance',
+      },
+      {
+        label: 'Knowledge Evolution',
+        icon: AutoAwesome,
+        href: '/dashboard/knowledge-evolution',
+      },
+      {
+        label: 'CIL Intelligence',
+        icon: Psychology,
+        href: '/dashboard/cil-intelligence',
+      },
+    ],
   },
   {
     label: 'Approvals',
@@ -101,24 +115,15 @@ const navigationItems = [
     href: '/dashboard/observability',
   },
   {
-    label: 'CIL Intelligence',
-    icon: Psychology,
-    href: '/dashboard/cil-intelligence',
-  },
-  {
     label: 'Ads Analytics',
     icon: TrendingUp,
     href: '/dashboard/ads-analytics',
-  },
-  {
-    label: 'Settings',
-    icon: Settings,
-    href: '/dashboard/settings',
   },
 ]
 
 export default function Sidebar({ open, onClose, variant = 'persistent' }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const pathname = usePathname()
@@ -127,6 +132,40 @@ export default function Sidebar({ open, onClose, variant = 'persistent' }: Sideb
 
   const drawerWidth = collapsed ? 64 : 240
   const drawerVariant = isMobile ? 'temporary' : variant
+
+  // Load expanded state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebar-expanded-sections')
+    if (savedState) {
+      try {
+        setExpandedSections(JSON.parse(savedState))
+      } catch (e) {
+        // If parsing fails, default to Intelligence Layer expanded
+        setExpandedSections({ 'Intelligence Layer': true })
+      }
+    } else {
+      // Default: expand Intelligence Layer
+      setExpandedSections({ 'Intelligence Layer': true })
+    }
+  }, [])
+
+  // Save expanded state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('sidebar-expanded-sections', JSON.stringify(expandedSections))
+  }, [expandedSections])
+
+  // Toggle section expansion
+  const handleToggleSection = (label: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }))
+  }
+
+  // Check if any child of a parent section is active
+  const isParentActive = (children: any[]) => {
+    return children.some((child) => child.href === pathname)
+  }
   
   // Close sidebar on mobile when clicking outside
   const handleClose = () => {
@@ -231,40 +270,96 @@ export default function Sidebar({ open, onClose, variant = 'persistent' }: Sideb
       <List sx={{ flex: 1, px: 1, py: 2 }}>
         {navigationItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href
-          
+          const hasChildren = 'children' in item && item.children
+          const isActive = !hasChildren && pathname === item.href
+          const isExpanded = expandedSections[item.label] || false
+          const childActive = hasChildren && isParentActive(item.children)
+
           return (
-            <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
-              <ListItemButton
-                component={Link}
-                href={item.href}
-                selected={isActive}
-                sx={{
-                  borderRadius: 2,
-                  minHeight: 44,
-                }}
-              >
-                <ListItemIcon
+            <Box key={item.label}>
+              {/* Parent Item (or Regular Item) */}
+              <ListItem disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  component={hasChildren ? 'div' : Link}
+                  href={hasChildren ? undefined : item.href}
+                  selected={isActive || childActive}
+                  onClick={hasChildren ? () => handleToggleSection(item.label) : undefined}
                   sx={{
-                    minWidth: collapsed ? 'auto' : 40,
-                    justifyContent: collapsed ? 'center' : 'flex-start',
-                    color: isActive ? 'primary.main' : 'text.secondary',
+                    borderRadius: 2,
+                    minHeight: 44,
                   }}
                 >
-                  <Icon />
-                </ListItemIcon>
-                {!collapsed && (
-                  <ListItemText
-                    primary={item.label}
-                    primaryTypographyProps={{
-                      fontSize: '0.875rem',
-                      fontWeight: isActive ? 600 : 500,
-                      color: isActive ? 'primary.main' : 'text.primary',
+                  <ListItemIcon
+                    sx={{
+                      minWidth: collapsed ? 'auto' : 40,
+                      justifyContent: collapsed ? 'center' : 'flex-start',
+                      color: (isActive || childActive) ? 'primary.main' : 'text.secondary',
                     }}
-                  />
-                )}
-              </ListItemButton>
-            </ListItem>
+                  >
+                    <Icon />
+                  </ListItemIcon>
+                  {!collapsed && (
+                    <>
+                      <ListItemText
+                        primary={item.label}
+                        primaryTypographyProps={{
+                          fontSize: '0.875rem',
+                          fontWeight: (isActive || childActive) ? 600 : 500,
+                          color: (isActive || childActive) ? 'primary.main' : 'text.primary',
+                        }}
+                      />
+                      {hasChildren && (
+                        isExpanded ? <ExpandLess sx={{ color: 'text.secondary' }} /> : <ExpandMore sx={{ color: 'text.secondary' }} />
+                      )}
+                    </>
+                  )}
+                </ListItemButton>
+              </ListItem>
+
+              {/* Nested Children */}
+              {hasChildren && !collapsed && (
+                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {item.children.map((child) => {
+                      const ChildIcon = child.icon
+                      const isChildActive = pathname === child.href
+
+                      return (
+                        <ListItem key={child.label} disablePadding sx={{ mb: 0.5 }}>
+                          <ListItemButton
+                            component={Link}
+                            href={child.href}
+                            selected={isChildActive}
+                            sx={{
+                              borderRadius: 2,
+                              minHeight: 40,
+                              pl: 4,
+                            }}
+                          >
+                            <ListItemIcon
+                              sx={{
+                                minWidth: 36,
+                                color: isChildActive ? 'primary.main' : 'text.secondary',
+                              }}
+                            >
+                              <ChildIcon sx={{ fontSize: 20 }} />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={child.label}
+                              primaryTypographyProps={{
+                                fontSize: '0.8125rem',
+                                fontWeight: isChildActive ? 600 : 400,
+                                color: isChildActive ? 'primary.main' : 'text.secondary',
+                              }}
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      )
+                    })}
+                  </List>
+                </Collapse>
+              )}
+            </Box>
           )
         })}
       </List>

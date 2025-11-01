@@ -20,6 +20,8 @@ import {
   Description as NotionIcon,
   Cloud as DriveIcon,
   BugReport as JiraIcon,
+  Campaign as GoogleAdsIcon,
+  Paid as MetaAdsIcon,
   CheckCircle,
   Schedule,
   Error,
@@ -32,6 +34,8 @@ const sourceIcons: Record<string, any> = {
   notion: NotionIcon,
   drive: DriveIcon,
   jira: JiraIcon,
+  google_ads: GoogleAdsIcon,
+  meta_ads: MetaAdsIcon,
 }
 
 const statusColors: Record<string, 'success' | 'warning' | 'error'> = {
@@ -51,12 +55,14 @@ interface Document {
   source_type: string
   title: string
   content: string
+  summary?: string
   author?: string
   channel_name?: string
   channel_id?: string
   embedding_status: string
   created_at: string
   url?: string
+  metadata?: any
 }
 
 interface DocumentsTableProps {
@@ -68,6 +74,13 @@ function DocumentRow({ doc }: { doc: Document }) {
   const SourceIcon = sourceIcons[doc.source_type]
   const StatusIcon = statusIcons[doc.embedding_status]
   const statusColor = statusColors[doc.embedding_status]
+
+  // Check if this is an ads campaign
+  const isAdsCampaign = doc.source_type === 'google_ads' || doc.source_type === 'meta_ads'
+
+  // Extract campaign-specific data from metadata
+  const campaignObjective = isAdsCampaign ? doc.metadata?.objective : null
+  const campaignStatus = isAdsCampaign ? doc.metadata?.status : null
 
   return (
     <>
@@ -88,7 +101,7 @@ function DocumentRow({ doc }: { doc: Document }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {SourceIcon && <SourceIcon fontSize="small" />}
             <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-              {doc.source_type}
+              {doc.source_type.replace('_', ' ')}
             </Typography>
           </Box>
         </TableCell>
@@ -106,12 +119,34 @@ function DocumentRow({ doc }: { doc: Document }) {
           </Typography>
         </TableCell>
         <TableCell>
-          <Typography variant="body2">{doc.author || 'Unknown'}</Typography>
+          {isAdsCampaign ? (
+            <Chip
+              label={campaignObjective || 'Campaign'}
+              size="small"
+              variant="outlined"
+              sx={{ textTransform: 'capitalize' }}
+            />
+          ) : (
+            <Typography variant="body2">{doc.author || 'Unknown'}</Typography>
+          )}
         </TableCell>
         <TableCell>
-          <Typography variant="body2">
-            {doc.channel_name || doc.channel_id || '-'}
-          </Typography>
+          {isAdsCampaign ? (
+            <Chip
+              label={campaignStatus || 'unknown'}
+              size="small"
+              color={
+                campaignStatus === 'active' ? 'success' :
+                campaignStatus === 'paused' ? 'warning' :
+                campaignStatus === 'deleted' ? 'error' : 'default'
+              }
+              sx={{ textTransform: 'capitalize' }}
+            />
+          ) : (
+            <Typography variant="body2">
+              {doc.channel_name || doc.channel_id || '-'}
+            </Typography>
+          )}
         </TableCell>
         <TableCell>
           <Chip
@@ -131,8 +166,18 @@ function DocumentRow({ doc }: { doc: Document }) {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ py: 3, px: 2 }}>
+              {doc.summary && isAdsCampaign && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                    Summary
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    {doc.summary}
+                  </Typography>
+                </Box>
+              )}
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                Document Content
+                {isAdsCampaign ? 'Campaign Details' : 'Document Content'}
               </Typography>
               <Paper
                 elevation={0}
@@ -149,7 +194,7 @@ function DocumentRow({ doc }: { doc: Document }) {
                   variant="body2"
                   sx={{
                     whiteSpace: 'pre-wrap',
-                    fontFamily: 'monospace',
+                    fontFamily: isAdsCampaign ? 'inherit' : 'monospace',
                     fontSize: '0.875rem',
                   }}
                 >

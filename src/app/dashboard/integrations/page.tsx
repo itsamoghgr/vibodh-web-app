@@ -18,6 +18,8 @@ import {
   Cloud as DriveIcon,
   BugReport as JiraIcon,
   AssignmentTurnedIn as ClickUpIcon,
+  Campaign as GoogleAdsIcon,
+  Facebook as MetaAdsIcon,
   CheckCircle,
   Add,
   ArrowBack,
@@ -50,6 +52,22 @@ const integrations: Integration[] = [
     description: 'Import tasks, comments, and project data from ClickUp',
     icon: ClickUpIcon,
     color: '#7B68EE',
+    available: true,
+  },
+  {
+    id: 'google_ads',
+    name: 'Google Ads',
+    description: 'Connect Google Ads to track campaigns, metrics, and performance insights',
+    icon: GoogleAdsIcon,
+    color: '#4285F4',
+    available: true,
+  },
+  {
+    id: 'meta_ads',
+    name: 'Meta Ads',
+    description: 'Connect Meta Ads (Facebook/Instagram) to analyze campaign performance',
+    icon: MetaAdsIcon,
+    color: '#0668E1',
     available: true,
   },
   {
@@ -135,7 +153,20 @@ export default async function IntegrationsPage() {
     .select('*')
     .eq('org_id', profile.org_id)
 
+  // Get ads accounts
+  const { data: adAccounts } = await supabase
+    .from('ad_accounts')
+    .select('*')
+    .eq('org_id', profile.org_id)
+
   const connectedSources = new Set(connections?.map((c) => c.source_type) || [])
+
+  // Add ads platforms to connected sources
+  if (adAccounts && adAccounts.length > 0) {
+    adAccounts.forEach((account) => {
+      connectedSources.add(account.platform)
+    })
+  }
 
   return (
     
@@ -182,6 +213,11 @@ export default async function IntegrationsPage() {
                 const Icon = integration.icon
                 const isConnected = connectedSources.has(integration.id)
                 const connection = connections?.find((c) => c.source_type === integration.id)
+
+                // For ads integrations, find ad accounts
+                const adAccount = (integration.id === 'google_ads' || integration.id === 'meta_ads')
+                  ? adAccounts?.find((a) => a.platform === integration.id)
+                  : null
 
                 return (
                   <Box key={integration.id}>
@@ -249,7 +285,7 @@ export default async function IntegrationsPage() {
                           {integration.description}
                         </Typography>
 
-                        {isConnected && connection && (
+                        {isConnected && (connection || adAccount) && (
                           <Paper
                             elevation={0}
                             sx={{
@@ -262,7 +298,7 @@ export default async function IntegrationsPage() {
                           >
                             <Stack spacing={1}>
                               {/* Live Sync Status Badge */}
-                              {connection.metadata?.webhook_active && (
+                              {connection?.metadata?.webhook_active && (
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                                   <Box
                                     sx={{
@@ -283,23 +319,48 @@ export default async function IntegrationsPage() {
                                 </Box>
                               )}
 
-                              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                                Workspace: <strong>{connection.workspace_name}</strong>
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                Connected: {new Date(connection.connected_at).toLocaleDateString()}
-                              </Typography>
+                              {/* For ads accounts */}
+                              {adAccount && (
+                                <>
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                    Account: <strong>{adAccount.account_name || adAccount.external_account_id}</strong>
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Connected: {new Date(adAccount.connected_at).toLocaleDateString()}
+                                  </Typography>
+                                  {adAccount.last_sync_at && (
+                                    <Typography variant="caption" color="text.secondary">
+                                      Last sync: {new Date(adAccount.last_sync_at).toLocaleString()}
+                                    </Typography>
+                                  )}
+                                  <Typography variant="caption" sx={{ fontWeight: 600, color: '#10b981' }}>
+                                    Auto-sync: Hourly
+                                  </Typography>
+                                </>
+                              )}
 
-                              {/* Last Event Received */}
-                              {connection.metadata?.last_webhook_event ? (
-                                <Typography variant="caption" color="text.secondary">
-                                  Last event: {new Date(connection.metadata.last_webhook_event).toLocaleString()}
-                                </Typography>
-                              ) : connection.last_sync_at ? (
-                                <Typography variant="caption" color="text.secondary">
-                                  Last sync: {new Date(connection.last_sync_at).toLocaleString()}
-                                </Typography>
-                              ) : null}
+                              {/* For other integrations */}
+                              {connection && !adAccount && (
+                                <>
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                    Workspace: <strong>{connection.workspace_name}</strong>
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Connected: {new Date(connection.connected_at).toLocaleDateString()}
+                                  </Typography>
+
+                                  {/* Last Event Received */}
+                                  {connection.metadata?.last_webhook_event ? (
+                                    <Typography variant="caption" color="text.secondary">
+                                      Last event: {new Date(connection.metadata.last_webhook_event).toLocaleString()}
+                                    </Typography>
+                                  ) : connection.last_sync_at ? (
+                                    <Typography variant="caption" color="text.secondary">
+                                      Last sync: {new Date(connection.last_sync_at).toLocaleString()}
+                                    </Typography>
+                                  ) : null}
+                                </>
+                              )}
                             </Stack>
                           </Paper>
                         )}
@@ -310,7 +371,7 @@ export default async function IntegrationsPage() {
                           <ConnectButton
                             integration={integration}
                             isConnected={isConnected}
-                            connectionId={connection?.id}
+                            connectionId={connection?.id || adAccount?.id}
                             orgId={profile.org_id}
                           />
                         ) : (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -409,9 +409,9 @@ export default function CampaignTable({
           </TableHead>
           <TableBody>
             {sortedCampaigns.map((campaign) => (
-              <>
+              <React.Fragment key={campaign.id}>
                 {/* Campaign Row */}
-                <TableRow key={campaign.id} hover>
+                <TableRow hover>
                   <TableCell>
                     <IconButton
                       size="small"
@@ -508,7 +508,7 @@ export default function CampaignTable({
                     ))}
                   </>
                 ))}
-              </>
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>

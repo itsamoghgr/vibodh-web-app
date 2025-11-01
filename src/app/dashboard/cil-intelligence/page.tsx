@@ -29,6 +29,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from '@mui/material'
 import {
   Refresh,
@@ -123,6 +124,7 @@ export default function CILIntelligencePage() {
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
   const [reviewNotes, setReviewNotes] = useState('')
+  const [triggeringLearning, setTriggeringLearning] = useState(false)
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -201,20 +203,25 @@ export default function CILIntelligencePage() {
   }
 
   const handleTriggerLearning = async () => {
+    setTriggeringLearning(true)
     try {
-      const response = await fetch(`${API_BASE}/api/v1/cil/admin/trigger-learning`, {
+      // Use the ads optimization endpoint that we tested
+      const response = await fetch(`${API_BASE}/api/v1/cil/ads/trigger-optimization/${profile?.orgId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ org_id: profile?.orgId }),
       })
       const data = await response.json()
       if (data.success) {
-        alert('Meta-learning cycle started successfully!')
+        alert(`Learning cycle completed successfully! ${data.proposals_created} proposals created.`)
         await fetchAllData()
+      } else {
+        alert(data.detail || 'Failed to trigger learning cycle')
       }
     } catch (error) {
       console.error('Error triggering learning:', error)
       alert('Failed to trigger learning cycle')
+    } finally {
+      setTriggeringLearning(false)
     }
   }
 
@@ -316,11 +323,12 @@ export default function CILIntelligencePage() {
           </Button>
           <Button
             variant="contained"
-            startIcon={<PlayArrow />}
+            startIcon={triggeringLearning ? <CircularProgress size={20} color="inherit" /> : <PlayArrow />}
             onClick={handleTriggerLearning}
+            disabled={triggeringLearning}
             color="primary"
           >
-            Trigger Learning
+            {triggeringLearning ? 'Running Learning Cycle...' : 'Trigger Learning'}
           </Button>
         </Box>
       </Box>
