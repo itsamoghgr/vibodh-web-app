@@ -54,26 +54,31 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
     scrollToBottom()
   }, [messages])
 
+  const loadSession = async (sid: string) => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${backendUrl}/api/v1/chat/${sid}`)
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(data.messages || [])
+        setSessionId(sid)
+      } else {
+        console.error('Failed to load session:', response.status)
+        setMessages([])
+      }
+    } catch (error) {
+      console.error('Failed to load session:', error)
+      setMessages([]) // Set empty array on error
+    }
+  }
+
   // Load session messages if sessionId provided
   useEffect(() => {
     if (initialSessionId) {
       loadSession(initialSessionId)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSessionId])
-
-  const loadSession = async (sid: string) => {
-    try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${backendUrl}/api/chat/${sid}`)
-      if (response.ok) {
-        const data = await response.json()
-        setMessages(data.messages)
-        setSessionId(sid)
-      }
-    } catch (error) {
-      console.error('Failed to load session:', error)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,7 +97,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${backendUrl}/api/chat/stream`, {
+      const response = await fetch(`${backendUrl}/api/v1/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -172,7 +177,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
   const handleFeedback = async (messageId: string, rating: 'positive' | 'negative') => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      await fetch(`${backendUrl}/api/chat/feedback?user_id=${userId}`, {
+      await fetch(`${backendUrl}/api/v1/chat/feedback?user_id=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -208,7 +213,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
           position: 'relative',
         }}
       >
-        {messages.length === 0 && (
+        {(!messages || messages.length === 0) && (
           <Box sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -264,7 +269,7 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
           </Box>
         )}
 
-        {messages.map((message) => (
+        {messages && messages.map((message) => (
           <Box
             key={message.id}
             sx={{
@@ -322,9 +327,16 @@ export default function ChatInterface({ userId, orgId, sessionId: initialSession
                           {message.context.map((ctx: any, idx: number) => (
                             <Paper key={idx} variant="outlined" sx={{ p: 2, bgcolor: 'background.default' }}>
                               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                                Source {idx + 1} • {(ctx.similarity * 100).toFixed(0)}% match
+                                Source {idx + 1}{ctx.similarity ? ` • ${(ctx.similarity * 100).toFixed(0)}% match` : ''} • {ctx.type || 'document'}
                               </Typography>
-                              <Typography variant="body2" color="text.primary">{ctx.content}</Typography>
+                              <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
+                                {ctx.title || ctx.content || 'Untitled'}
+                              </Typography>
+                              {ctx.source && (
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                  From: {ctx.source}
+                                </Typography>
+                              )}
                             </Paper>
                           ))}
                         </Box>

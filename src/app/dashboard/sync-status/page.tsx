@@ -20,7 +20,6 @@ import {
 import { ArrowBack, CheckCircle, Error, Schedule } from '@mui/icons-material'
 import Link from 'next/link'
 import RefreshButton from './RefreshButton'
-import DashboardLayout from '@/components/DashboardLayout'
 
 export default async function SyncStatusPage() {
   const supabase = await createClient()
@@ -53,15 +52,22 @@ export default async function SyncStatusPage() {
     .order('started_at', { ascending: false })
     .limit(10)
 
-  // Get channel stats from documents
-  const { data: documents } = await supabase
+  // Get Slack channel stats from documents
+  const { data: slackDocuments } = await supabase
     .from('documents')
     .select('channel_name, channel_id, source_type, created_at')
     .eq('org_id', profile.org_id)
     .eq('source_type', 'slack')
 
-  // Group by channel
-  const channelStats = documents?.reduce((acc: any, doc: any) => {
+  // Get ClickUp task stats from documents
+  const { data: clickupDocuments } = await supabase
+    .from('documents')
+    .select('metadata, source_type, created_at')
+    .eq('org_id', profile.org_id)
+    .eq('source_type', 'clickup')
+
+  // Group Slack by channel
+  const channelStats = slackDocuments?.reduce((acc: any, doc: any) => {
     const channelId = doc.channel_id || 'unknown'
     if (!acc[channelId]) {
       acc[channelId] = {
@@ -79,6 +85,25 @@ export default async function SyncStatusPage() {
   }, {})
 
   const channels = Object.values(channelStats || {})
+
+  // Group ClickUp by space
+  const spaceStats = clickupDocuments?.reduce((acc: any, doc: any) => {
+    const spaceName = doc.metadata?.space_name || 'Unknown Space'
+    if (!acc[spaceName]) {
+      acc[spaceName] = {
+        space_name: spaceName,
+        count: 0,
+        latest_sync: doc.created_at,
+      }
+    }
+    acc[spaceName].count++
+    if (new Date(doc.created_at) > new Date(acc[spaceName].latest_sync)) {
+      acc[spaceName].latest_sync = doc.created_at
+    }
+    return acc
+  }, {})
+
+  const spaces = Object.values(spaceStats || {})
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -107,7 +132,7 @@ export default async function SyncStatusPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -134,15 +159,13 @@ export default async function SyncStatusPage() {
           </Box>
         </Box>
 
-        {/* Channel Statistics */}
-        <Card sx={{ mb: 4 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Synced Channels ({channels.length})
-            </Typography>
-            {channels.length === 0 ? (
-              <Typography color="text.secondary">No channels synced yet</Typography>
-            ) : (
+        {/* Slack Channel Statistics */}
+        {channels.length > 0 && (
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Slack Channels ({channels.length})
+              </Typography>
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -176,9 +199,59 @@ export default async function SyncStatusPage() {
                   </TableBody>
                 </Table>
               </TableContainer>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ClickUp Space Statistics */}
+        {spaces.length > 0 && (
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                ClickUp Spaces ({spaces.length})
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Space</TableCell>
+                      <TableCell align="right">Tasks</TableCell>
+                      <TableCell align="right">Latest Sync</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {spaces.map((space: any) => (
+                      <TableRow key={space.space_name}>
+                        <TableCell>
+                          <Typography variant="body1" fontWeight="medium">
+                            {space.space_name}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Chip label={space.count} size="small" color="secondary" />
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography variant="body2" color="text.secondary">
+                            {new Date(space.latest_sync).toLocaleString()}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* No Data Message */}
+        {channels.length === 0 && spaces.length === 0 && (
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography color="text.secondary">No synced data yet. Connect an integration to get started.</Typography>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Sync Jobs History */}
         <Card>
@@ -266,6 +339,6 @@ export default async function SyncStatusPage() {
           </CardContent>
         </Card>
       </Container>
-    </DashboardLayout>
+    
   )
 }

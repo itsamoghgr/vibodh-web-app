@@ -1,96 +1,135 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import ChatInterface from './ChatInterface'
-import { Container, Box, Typography, Button } from '@mui/material'
-import { ArrowBack, History } from '@mui/icons-material'
-import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
+'use client'
 
-export default async function ChatPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ session?: string }>
-}) {
-  const supabase = await createClient()
+import { useState, useEffect } from 'react'
+import { Box, Drawer, IconButton, Tooltip } from '@mui/material'
+import { Info as InfoIcon, Close as CloseIcon } from '@mui/icons-material'
+import { useApp } from '@/contexts/AppContext'
+import { useSearchParams } from 'next/navigation'
+import { ChatProvider } from '@/contexts/ChatContext'
+import SessionsSidebar from '@/components/chat/SessionsSidebar'
+import ChatArea from '@/components/chat/ChatArea'
+import ContextDrawer from '@/components/chat/ContextDrawer'
+import NotificationToast from '@/components/chat/NotificationToast'
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+const SESSIONS_WIDTH = 280
+const CONTEXT_WIDTH = 360
+const CONTEXT_DRAWER_STORAGE_KEY = 'vibodh-context-drawer-open'
 
-  if (!user) {
-    redirect('/login')
+export default function ChatPage() {
+  const { user, profile } = useApp()
+  const searchParams = useSearchParams()
+  const sessionId = searchParams.get('session') || undefined
+
+  // Context drawer state - load from localStorage, defaults to closed
+  const [contextOpen, setContextOpen] = useState(false)
+
+  // Load drawer state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem(CONTEXT_DRAWER_STORAGE_KEY)
+    if (savedState !== null) {
+      setContextOpen(savedState === 'true')
+    }
+  }, [])
+
+  // Save drawer state to localStorage whenever it changes
+  const handleContextToggle = (open: boolean) => {
+    setContextOpen(open)
+    localStorage.setItem(CONTEXT_DRAWER_STORAGE_KEY, String(open))
   }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.org_id) {
-    redirect('/dashboard')
-  }
-
-  // Get session ID from URL query param
-  const params = await searchParams
-  const sessionId = params.session || undefined
 
   return (
-    <DashboardLayout>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        bgcolor: 'background.default',
-      }}>
-        {/* Header */}
-        <Box sx={{
-          px: 3,
-          py: 2.5,
-          bgcolor: 'background.paper',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+    <ChatProvider>
+      <Box
+        sx={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Button
-              component={Link}
-              href="/dashboard"
-              startIcon={<ArrowBack />}
-              variant="outlined"
-              size="small"
-            >
-              Back
-            </Button>
-            <Box>
-              <Typography variant="h5" component="h1" sx={{ fontWeight: 600 }}>
-                AI Assistant
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Powered by Vibodh
-              </Typography>
-            </Box>
-          </Box>
-          <Button
-            component={Link}
-            href="/dashboard/chat/history"
-            variant="outlined"
-            startIcon={<History />}
-            size="small"
-          >
-            History
-          </Button>
+          height: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      >
+        {/* Left: Sessions Sidebar */}
+        <Box
+          sx={{
+            width: SESSIONS_WIDTH,
+            flexShrink: 0,
+            borderRight: 1,
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+          }}
+        >
+          <SessionsSidebar userId={user.id} orgId={profile.orgId} />
         </Box>
 
-        {/* Chat Interface */}
-        <Box sx={{ flex: 1, overflow: 'hidden' }}>
-          <ChatInterface userId={user.id} orgId={profile.org_id} sessionId={sessionId} />
+        {/* Center: Chat Area */}
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <ChatArea userId={user.id} orgId={profile.orgId} />
         </Box>
+
+        {/* Floating Context Toggle Button */}
+        {!contextOpen && (
+          <Tooltip title="View Context & Sources" placement="left">
+            <IconButton
+              onClick={() => handleContextToggle(true)}
+              sx={{
+                position: 'absolute',
+                right: 16,
+                top: 16,
+                zIndex: 1000,
+                bgcolor: 'primary.main',
+                color: 'white',
+                boxShadow: 2,
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+
+        {/* Right: Collapsible Context Drawer */}
+        <Drawer
+          anchor="right"
+          open={contextOpen}
+          onClose={() => handleContextToggle(false)}
+          variant="persistent"
+          sx={{
+            width: contextOpen ? CONTEXT_WIDTH : 0,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: CONTEXT_WIDTH,
+              position: 'relative',
+              height: '100%',
+              borderLeft: 1,
+              borderColor: 'divider',
+            },
+          }}
+        >
+          {/* Close Button inside drawer */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1, borderBottom: 1, borderColor: 'divider' }}>
+            <Tooltip title="Close Context" placement="left">
+              <IconButton onClick={() => handleContextToggle(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          <ContextDrawer />
+        </Drawer>
       </Box>
-    </DashboardLayout>
+
+      <NotificationToast />
+    </ChatProvider>
   )
 }

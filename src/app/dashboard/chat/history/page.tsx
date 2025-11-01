@@ -1,5 +1,8 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import {
   Container,
   Box,
@@ -10,10 +13,15 @@ import {
   CardActionArea,
   Chip,
   Stack,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from '@mui/material'
-import { ArrowBack, Chat } from '@mui/icons-material'
+import { ArrowBack, Chat, Delete } from '@mui/icons-material'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
 
 interface ChatSession {
   id: string
@@ -22,43 +30,96 @@ interface ChatSession {
   updated_at: string
 }
 
-export default async function ChatHistoryPage() {
-  const supabase = await createClient()
+export default function ChatHistoryPage() {
+  const router = useRouter()
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string>('')
+  const [orgId, setOrgId] = useState<string>('')
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  useEffect(() => {
+    loadSessions()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  if (!user) {
-    redirect('/login')
-  }
+  const loadSessions = async () => {
+    const supabase = createClient()
 
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.org_id) {
-    redirect('/dashboard')
-  }
-
-  // Fetch chat sessions from backend
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  let sessions: ChatSession[] = []
-
-  try {
-    const response = await fetch(`${backendUrl}/api/chat/history?user_id=${user.id}&limit=20`, {
-      cache: 'no-store',
-    })
-    if (response.ok) {
-      const data = await response.json()
-      sessions = data.sessions
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/login')
+      return
     }
-  } catch (error) {
-    console.error('Failed to fetch chat history:', error)
+
+    setUserId(user.id)
+
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.org_id) {
+      router.push('/dashboard')
+      return
+    }
+
+    setOrgId(profile.org_id)
+
+    // Fetch chat sessions from backend
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    try {
+      const response = await fetch(`${backendUrl}/api/v1/chat/history?org_id=${profile.org_id}&user_id=${user.id}&limit=20`, {
+        cache: 'no-store',
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setSessions(data.sessions || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch chat history:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteClick = (sessionId: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSessionToDelete(sessionId)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!sessionToDelete) return
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${backendUrl}/api/v1/chat/${sessionToDelete}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Remove from local state
+        setSessions(sessions.filter(s => s.id !== sessionToDelete))
+      } else {
+        console.error('Failed to delete session')
+      }
+    } catch (error) {
+      console.error('Error deleting session:', error)
+    } finally {
+      setDeleteDialogOpen(false)
+      setSessionToDelete(null)
+    }
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false)
+    setSessionToDelete(null)
   }
 
   const formatDate = (dateString: string) => {
@@ -79,7 +140,7 @@ export default async function ChatHistoryPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -119,29 +180,59 @@ export default async function ChatHistoryPage() {
             </CardContent>
           </Card>
         ) : (
-          <Stack spacing={2}>
-            {sessions.map((session) => (
-              <Card key={session.id} variant="outlined" sx={{ '&:hover': { borderColor: 'primary.main' } }}>
-                <CardActionArea component={Link} href={`/dashboard/chat?session=${session.id}`}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" gutterBottom>
-                          {session.title || 'Untitled conversation'}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {formatDate(session.updated_at)}
-                        </Typography>
+          <>
+            <Stack spacing={2}>
+              {sessions.map((session) => (
+                <Card key={session.id} variant="outlined" sx={{ '&:hover': { borderColor: 'primary.main' } }}>
+                  <CardActionArea component={Link} href={`/dashboard/chat?session=${session.id}`}>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="h6" gutterBottom>
+                            {session.title || 'Untitled conversation'}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {formatDate(session.updated_at)}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={(e) => handleDeleteClick(session.id, e)}
+                            sx={{ '&:hover': { bgcolor: 'error.lighter' } }}
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                          <Chip label="View" size="small" color="primary" variant="outlined" />
+                        </Box>
                       </Box>
-                      <Chip label="View" size="small" color="primary" variant="outlined" />
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            ))}
-          </Stack>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              ))}
+            </Stack>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+              <DialogTitle>Delete Chat Session?</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Are you sure you want to delete this conversation? This action cannot be undone.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleDeleteCancel} color="inherit">
+                  Cancel
+                </Button>
+                <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
         )}
       </Container>
-    </DashboardLayout>
+    
   )
 }

@@ -5,47 +5,14 @@ import {
   Container,
   Typography,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Chip,
   Alert,
   Button,
 } from '@mui/material'
-import {
-  Chat as SlackIcon,
-  Description as NotionIcon,
-  Cloud as DriveIcon,
-  BugReport as JiraIcon,
-  CheckCircle,
-  Schedule,
-  Error,
-  ArrowBack,
-} from '@mui/icons-material'
+import { ArrowBack } from '@mui/icons-material'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
-
-const sourceIcons: Record<string, any> = {
-  slack: SlackIcon,
-  notion: NotionIcon,
-  drive: DriveIcon,
-  jira: JiraIcon,
-}
-
-const statusColors: Record<string, 'success' | 'warning' | 'error'> = {
-  completed: 'success',
-  pending: 'warning',
-  failed: 'error',
-}
-
-const statusIcons: Record<string, any> = {
-  completed: CheckCircle,
-  pending: Schedule,
-  failed: Error,
-}
+import DocumentsTable from '@/components/DocumentsTable'
+import RetryFailedButton from '@/components/RetryFailedButton'
 
 export default async function DocumentsPage() {
   const supabase = await createClient()
@@ -66,20 +33,26 @@ export default async function DocumentsPage() {
     .eq('id', user.id)
     .single()
 
-  // Get documents for this org
+  // Get ALL documents for this org (no limit)
   const { data: documents, error } = await supabase
     .from('documents')
     .select('*')
     .eq('org_id', profile?.org_id)
     .order('created_at', { ascending: false })
-    .limit(100)
 
   // Get document stats
   const { data: stats } = await supabase
     .rpc('get_document_stats', { org_uuid: profile?.org_id })
 
+  // Count failed documents
+  const { count: failedCount } = await supabase
+    .from('documents')
+    .select('*', { count: 'exact', head: true })
+    .eq('org_id', profile?.org_id)
+    .eq('embedding_status', 'failed')
+
   return (
-    <DashboardLayout>
+    
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -93,12 +66,26 @@ export default async function DocumentsPage() {
           >
             Back to Dashboard
           </Button>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
-            Documents
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600 }}>
-            View and manage ingested data from your connected integrations
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <Box>
+              <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+                Documents
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600 }}>
+                View and manage ingested data from your connected integrations
+              </Typography>
+            </Box>
+            {failedCount !== null && failedCount > 0 && (
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Alert severity="warning">
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {failedCount} failed embedding{failedCount > 1 ? 's' : ''}
+                  </Typography>
+                </Alert>
+                <RetryFailedButton orgId={profile?.org_id || ''} failedCount={failedCount} />
+              </Box>
+            )}
+          </Box>
         </Box>
 
         {/* Stats Cards */}
@@ -136,76 +123,9 @@ export default async function DocumentsPage() {
             No documents yet. Connect an integration and sync to see data here.
           </Alert>
         ) : (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Source</TableCell>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Author</TableCell>
-                  <TableCell>Channel</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Created</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {documents.map((doc) => {
-                  const SourceIcon = sourceIcons[doc.source_type]
-                  const StatusIcon = statusIcons[doc.embedding_status]
-                  const statusColor = statusColors[doc.embedding_status]
-
-                  return (
-                    <TableRow key={doc.id} hover>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {SourceIcon && <SourceIcon fontSize="small" />}
-                          <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-                            {doc.source_type}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            maxWidth: 300,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {doc.title || doc.content?.substring(0, 50) + '...'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{doc.author || 'Unknown'}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {doc.channel_name || doc.channel_id || '-'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          icon={StatusIcon && <StatusIcon />}
-                          label={doc.embedding_status}
-                          color={statusColor}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {new Date(doc.created_at).toLocaleDateString()}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <DocumentsTable documents={documents} />
         )}
       </Container>
-    </DashboardLayout>
+    
   )
 }
