@@ -10,7 +10,6 @@ import {
   Button,
   Chip,
   Box,
-  Grid,
   Skeleton,
   InputAdornment,
   Stack,
@@ -231,13 +230,13 @@ export default function MemoryDashboard() {
     return (
       <Box sx={{ p: 3 }}>
         <Skeleton variant="text" width={300} height={60} />
-        <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Box sx={{ display: 'flex', gap: 3, mt: 2, flexWrap: 'wrap' }}>
           {[1, 2, 3, 4].map((i) => (
-            <Grid item xs={12} md={3} key={i}>
+            <Box key={i} sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
               <Skeleton variant="rectangular" height={120} />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
         <Box sx={{ mt: 3 }}>
           <Skeleton variant="rectangular" height={400} />
         </Box>
@@ -271,8 +270,8 @@ export default function MemoryDashboard() {
 
       {/* Stats Grid */}
       {stats && (
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={3}>
+        <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <Card>
               <CardContent>
                 <Typography variant="caption" color="text.secondary">
@@ -283,9 +282,9 @@ export default function MemoryDashboard() {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={3}>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <Card>
               <CardContent>
                 <Typography variant="caption" color="text.secondary">
@@ -296,9 +295,9 @@ export default function MemoryDashboard() {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={3}>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <Card>
               <CardContent>
                 <Typography variant="caption" color="text.secondary">
@@ -309,9 +308,9 @@ export default function MemoryDashboard() {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={3}>
+          <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: '200px' }}>
             <Card>
               <CardContent>
                 <Typography variant="caption" color="text.secondary" gutterBottom>
@@ -329,8 +328,8 @@ export default function MemoryDashboard() {
                 </Stack>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )}
 
       {/* Search Bar */}
