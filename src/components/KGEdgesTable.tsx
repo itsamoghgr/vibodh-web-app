@@ -26,7 +26,7 @@ interface Edge {
     name: string
     type: string
   }
-  created_at: string
+  created_at?: string
 }
 
 interface KGEdgesTableProps {
@@ -96,7 +96,7 @@ export default function KGEdgesTable({ edges }: KGEdgesTableProps) {
               </TableCell>
               <TableCell>
                 <Typography variant="body2" color="text.secondary">
-                  {new Date(edge.created_at).toLocaleDateString()}
+                  {edge.created_at ? new Date(edge.created_at).toLocaleDateString() : 'N/A'}
                 </Typography>
               </TableCell>
             </TableRow>
